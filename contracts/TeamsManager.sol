@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./Administrable.sol";
 
 struct TeamInfo {
@@ -19,7 +20,7 @@ interface IERC20 {
   function name() external view returns (string memory);
 }
 
-contract TeamsManager is Administrable {
+contract TeamsManager is Administrable, ReentrancyGuard {
   IERC20 _votingTokenContract;
   bool _readyToVote = false;
   string[] _teamNames;
@@ -28,12 +29,14 @@ contract TeamsManager is Administrable {
 
   constructor(address[] memory initialAdmins) Administrable(initialAdmins) {}
 
-  function vote(string memory teamName, uint256 transferAmount) public {
-    require(bytes(_teams[teamName].teamName).length > 0, "Unkown team");
+    function vote(string memory teamName, uint256 transferAmount) public nonReentrant { 
+    require(bytes(_teams[teamName].teamName).length > 0, "Unknown team");
     require(keccak256(abi.encodePacked(_teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)), "Cannot vote for own team");
 
-    _votingTokenContract.transferFrom(msg.sender, address(this), transferAmount);
     _teams[teamName].score += transferAmount;
+
+    bool success = _votingTokenContract.transferFrom(msg.sender, address(this), transferAmount);
+    require(success, "Token transfer failed");
   }
 
   function getTeamNames() external view returns(string[] memory) {
