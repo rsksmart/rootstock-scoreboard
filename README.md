@@ -1,3 +1,7 @@
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/rsksmart/rootstock-scoreboard/badge)](https://scorecard.dev/viewer/?uri=github.com/rsksmart/rootstock-scoreboard)
+[![CodeQL](https://github.com/rsksmart/rskj/workflows/CodeQL/badge.svg)](https://github.com/rsksmart/rootstock-scoreboard/actions?query=workflow%3ACodeQL)
+<img src="img/rootstock-logo.png" alt="RSK Logo" style="width:100%; height: auto;" />
+
 # Governance Voting Dashboard
 
 This project is a voting dashboard built using Next.js and integrated with Rootstock Network (EVM compatible smart contracts). It allows users to create teams and vote using governance tokens (ERC20). The voting process is controlled by the `TeamsManager` smart contract, which manages the creation of teams and tracks the votes.
