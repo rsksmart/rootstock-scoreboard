@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.1.0",
-    "axios": "^1.7.4",
+    "axios": "^1.7.8",
     "ethers": "^6.12.1",
     "next": "15.0.3",
     "react": "^18",
