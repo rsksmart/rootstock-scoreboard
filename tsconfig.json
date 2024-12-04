@@ -27,6 +27,7 @@
         "./src/*"
       ]
     },
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
@@ -37,11 +38,11 @@
   "exclude": [
     "node_modules",
     "node_modules",
-    "artifacts",     
-    "cache",         
-    "hardhat.config.ts", 
-    "scripts",       
-    "tasks",         
-    "test"     
+    "artifacts",
+    "cache",
+    "hardhat.config.ts",
+    "scripts",
+    "tasks",
+    "test"
   ]
 }
