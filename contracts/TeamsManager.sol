@@ -69,7 +69,7 @@ contract TeamsManager is Administrable, ReentrancyGuard {
   function addTeam(string memory teamName, address memeTokenAddress, address teamLeaderAddress) public {
     require(bytes(_teams[teamName].teamName).length == 0, "Team already added");
     require(bytes(_teamLeaders[teamLeaderAddress]).length == 0, "Leader already assigned to a team");
-
+    require(memeTokenAddress != address(0), "Invalid token address");
     IERC20 memeTokenContract = IERC20(memeTokenAddress);
     string memory memeTokenName = memeTokenContract.name();
     string memory memeTokenUri = memeTokenContract.getUri();
