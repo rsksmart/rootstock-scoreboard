@@ -62,7 +62,7 @@ contract TeamsManager is Administrable, ReentrancyGuard {
     _readyToVote = true;
   }
 
-  function setVotingToken(address votingTokenAddress) public {
+  function setVotingToken(address votingTokenAddress) public onlyAdmins {
     _votingTokenContract = IERC20(votingTokenAddress);
   }
 
