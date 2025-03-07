@@ -30,6 +30,7 @@ contract TeamsManager is Administrable, ReentrancyGuard {
   constructor(address[] memory initialAdmins) Administrable(initialAdmins) {}
 
     function vote(string memory teamName, uint256 transferAmount) public nonReentrant { 
+    require(_readyToVote, "Voting is not ready yet");
     require(bytes(_teams[teamName].teamName).length > 0, "Unknown team");
     require(keccak256(abi.encodePacked(_teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)), "Cannot vote for own team");
 
