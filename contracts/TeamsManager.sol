@@ -30,6 +30,7 @@ contract TeamsManager is Administrable, ReentrancyGuard {
   constructor(address[] memory initialAdmins) Administrable(initialAdmins) {}
 
     function vote(string memory teamName, uint256 transferAmount) public nonReentrant { 
+    require(_readyToVote, "Voting is not ready yet");
     require(bytes(_teams[teamName].teamName).length > 0, "Unknown team");
     require(keccak256(abi.encodePacked(_teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)), "Cannot vote for own team");
 
@@ -61,14 +62,14 @@ contract TeamsManager is Administrable, ReentrancyGuard {
     _readyToVote = true;
   }
 
-  function setVotingToken(address votingTokenAddress) public {
+  function setVotingToken(address votingTokenAddress) public onlyAdmins {
     _votingTokenContract = IERC20(votingTokenAddress);
   }
 
   function addTeam(string memory teamName, address memeTokenAddress, address teamLeaderAddress) public {
     require(bytes(_teams[teamName].teamName).length == 0, "Team already added");
     require(bytes(_teamLeaders[teamLeaderAddress]).length == 0, "Leader already assigned to a team");
-
+    require(memeTokenAddress != address(0), "Invalid token address");
     IERC20 memeTokenContract = IERC20(memeTokenAddress);
     string memory memeTokenName = memeTokenContract.name();
     string memory memeTokenUri = memeTokenContract.getUri();
