@@ -1,13 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import BaseDialog from './BaseDialog'
 import Button from '../common/Button'
 import Input from '../common/Input'
 import ContentDialog from './ContentDialog'
 import { useAuth } from '@/context/AuthContext'
 import useManager from '@/hooks/useManager'
-import { FETCH_STATUS } from '@/constants'
+import { FETCH_STATUS, TEAM_MANAGER_ADDRESS } from '@/constants'
 import { ITeam } from '@/interface/ITeam'
 import ConnectWalletButton from '../navigation/ConnectWalletButton'
+import { ethers } from 'ethers'
+import { toast } from 'react-toastify'
+import useConnectWallet from '@/hooks/useConnectWallet'
 
 type props = {
   open: boolean,
@@ -18,13 +21,73 @@ function AddVoteDialog({ open, closeDialog }: props) {
   const [amount, setAmount] = useState<number | undefined>(0);
   const [error, setError] = useState<string>('');
   const { team, tokenBalance, address } = useAuth();
+  const {login} = useConnectWallet()
+
+ 
 
   const handleVote = () => {
     if (!amount) setError('Amount required');
     if (!tokenBalance || amount! > tokenBalance) setError(`you don't have enough balance`);
     if (amount && tokenBalance && amount! <= tokenBalance) addVote(team?.teamName!, amount!);
   }
+  useEffect(() => {
+    if (!address) return; 
+    const contractABI = [
+      {
+        inputs: [
+          {
+            internalType: "string",
+            name: "teamName",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "transferAmount",
+            type: "uint256",
+          },
+        ],
+        name: "vote",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ];
+    
+    let contract: ethers.Contract;
+  
+    const setupEventListeners = async () => {
+      try {
+        const { ethereum } = window as any;
+        if (!ethereum) {
+          console.error("No Ethereum provider found.");
+          return;
+        }
+  
+        const web3Provider = new ethers.BrowserProvider(ethereum);
+        const signer = await web3Provider.getSigner();
+  
+        contract = new ethers.Contract(TEAM_MANAGER_ADDRESS, contractABI, signer);
+  
 
+        contract.on("TeamVotedSuccessfully", (teamName, transferAmount, event) => {
+          console.log(`Team ${teamName}  voted successfully ${transferAmount}.`);
+          toast.success(`Team ${teamName} voted successfully ${transferAmount}.`);
+     
+        });
+      } catch (error) {
+        console.error("Error setting up contract event listeners", error);
+      }
+    };
+  
+    setupEventListeners();
+
+
+    
+    // Clean up the event listener on component unmount
+    return () => {
+      contract.removeAllListeners("TeamVotedSuccessfully");
+    };
+  });
   const handleCloseDialog = () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
       getTeams();
@@ -43,6 +106,10 @@ function AddVoteDialog({ open, closeDialog }: props) {
     setAmount(0);
     setError('');
   }
+
+
+
+
   return (
     <BaseDialog open={open} closeDialog={handleCloseDialog} className='w-[490px] h-[420px]'>
       <div className='w-full h-full flex flex-col'>

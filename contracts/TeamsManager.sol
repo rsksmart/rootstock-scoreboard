@@ -3,6 +3,9 @@ pragma solidity ^0.8.20;
 
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./Administrable.sol";
+import {Events} from "./library/events.sol";
+
+
 
 struct TeamInfo {
   string teamName;
@@ -38,6 +41,8 @@ contract TeamsManager is Administrable, ReentrancyGuard {
 
     bool success = _votingTokenContract.transferFrom(msg.sender, address(this), transferAmount);
     require(success, "Token transfer failed");
+
+    emit Events.TeamVotedSuccessfully(teamName, transferAmount);
   }
 
   function getTeamNames() external view returns(string[] memory) {
@@ -64,6 +69,8 @@ contract TeamsManager is Administrable, ReentrancyGuard {
 
   function setVotingToken(address votingTokenAddress) public onlyAdmins {
     _votingTokenContract = IERC20(votingTokenAddress);
+
+    emit Events.VotingTokenSetSuccessfully(votingTokenAddress);
   }
 
   function addTeam(string memory teamName, address memeTokenAddress, address teamLeaderAddress) public {
@@ -77,6 +84,8 @@ contract TeamsManager is Administrable, ReentrancyGuard {
     _teamNames.push(teamName);
     _teamLeaders[teamLeaderAddress] = teamName;
     _teams[teamName] = TeamInfo(teamName, memeTokenName, memeTokenUri, memeTokenAddress, teamLeaderAddress, 0);
+  
+  emit Events.TeamAddedSuccessfully(teamName, memeTokenAddress, teamLeaderAddress);
   }
 
   function reset() public onlyAdmins {
@@ -86,5 +95,7 @@ contract TeamsManager is Administrable, ReentrancyGuard {
       _teams[_teamNames[i]] = TeamInfo("", "", "", address(0), address(0), 0);
     }
     _teamNames = [""];
+
+    emit Events.TeamResetSuccessfully();
   }
 }

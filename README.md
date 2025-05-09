@@ -76,6 +76,55 @@ The `TeamsManager` contract should be deployed to the Rootstock testnet network
 
 The variable `NEXT_PUBLIC_GOVERNANCE_TOKEN` should contain the address of the ERC20 token used for voting.
 
+
+
+
+
+# Frontend Updates
+
+## Overview
+This update enhances the frontend by integrating smart contract events and improving user feedback for key actions like adding teams and voting.
+
+## Changes Implemented
+
+### 1. Event Handling for Smart Contract Transactions
+- **Added event listeners** to capture and display real-time updates when teams are added, votes are cast, or teams are reset.
+- Integrated `ethers.js` to listen for the following contract events:
+  - `TeamAddedSuccessfully`
+  - `TeamResetSuccessfully`
+  - `TeamVotedSuccessfully`
+- Notifications are displayed using `react-toastify` when an event is emitted.
+
+### 2. UI Enhancements
+- **Improved feedback for users** by showing success messages when:
+  - A team is added successfully.
+  - A vote is cast successfully.
+  - Teams are reset.
+- Users are now informed in real time about their interactions with the smart contract.
+
+### 3. Contract Interaction
+- **Refactored contract interaction logic** for better structure and maintainability.
+- Introduced `useEffect` hooks to set up and clean up event listeners dynamically when the component mounts or unmounts.
+
+## Setup Instructions
+To use the updated frontend:
+1. Ensure that your wallet is connected to the appropriate network.
+2. Deploy the updated smart contract if not already deployed.
+3. Run the frontend project:
+   ```sh
+   yarn install  # Install dependencies
+   yarn run dev  # Start the development server
+   ```
+
+## Next Steps
+- Further optimize state management by integrating event-driven UI updates.
+- Improve error handling for contract interactions.
+- Extend event tracking for additional smart contract actions.
+
+
+
+
+
 # Disclaimer
 The software provided in this GitHub repository is offered “as is,” without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement.
 - **Testing:** The software has not undergone testing of any kind, and its functionality, accuracy, reliability, and suitability for any purpose are not guaranteed.

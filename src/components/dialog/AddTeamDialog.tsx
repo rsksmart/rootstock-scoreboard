@@ -1,7 +1,7 @@
 import BaseDialog from './BaseDialog'
 import Input from '../common/Input'
 import Button from '../common/Button'
-import { FETCH_STATUS } from '@/constants'
+import { FETCH_STATUS, TEAM_MANAGER_ADDRESS } from '@/constants'
 import { ChangeEvent, useEffect, useState } from 'react'
 import ContentDialog from './ContentDialog'
 import { ICreateTeam } from '@/interface/ITeam'
@@ -9,6 +9,8 @@ import { useAuth } from '@/context/AuthContext'
 import useManager from '@/hooks/useManager'
 import ConnectWalletButton from '../navigation/ConnectWalletButton'
 import { ethers } from 'ethers'
+import { toast, ToastContainer } from 'react-toastify'
+import useConnectWallet from '@/hooks/useConnectWallet'
 
 type props = {
   open: boolean
@@ -31,13 +33,14 @@ function AddTeamDialog({ open, closeDialog }: props) {
   const [validAddress, setValidAddress] = useState<boolean>(true);
   const [createTeam, setCreateTeam] = useState<ICreateTeam>(CREATE_TEAM_STATE);
   const [step, setStep] = useState(STEP_STATUS.INIT);
+  const { login } = useConnectWallet()
 
   const init = () => {
     setIsLoading(FETCH_STATUS.INIT);
     setCreateTeam(CREATE_TEAM_STATE);
     setStep(STEP_STATUS.INIT);
     setValidAddress(true);
-   }
+  }
   const handleCloseDialog = () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
       getTeams();
@@ -51,7 +54,9 @@ function AddTeamDialog({ open, closeDialog }: props) {
       closeDialog();
       getTeams();
     }
+    
     init();
+
   }
 
   const areAllFieldsFilled = () => {
@@ -59,8 +64,8 @@ function AddTeamDialog({ open, closeDialog }: props) {
   };
 
   const handleFormCreateAirdrop = (e: ChangeEvent<HTMLInputElement>) => {
-    if(e.target.name === 'teamName') {
-      if(e.target.value.length > 30) {
+    if (e.target.name === 'teamName') {
+      if (e.target.value.length > 30) {
         return
       }
     }
@@ -85,11 +90,80 @@ function AddTeamDialog({ open, closeDialog }: props) {
       addTeam(createTeam);
     }
   }
+  useEffect(() => {
+    if (!address) return; 
+    const contractABI = [
+      {
+        inputs: [
+          { internalType: "string", name: "teamName", type: "string" },
+          { internalType: "address", name: "memeTokenAddress", type: "address" },
+          { internalType: "address", name: "teamLeaderAddress", type: "address" },
+        ],
+        name: "addTeam",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "reset",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ];
+  
+    let contract: ethers.Contract;
+  
+    const setupEventListeners = async () => {
+      try {
+        const { ethereum } = window as any;
+        if (!ethereum) {
+          console.error("No Ethereum provider found.");
+          return;
+        }
+  
+        const web3Provider = new ethers.BrowserProvider(ethereum);
+        const signer = await web3Provider.getSigner();
+  
+       contract = new ethers.Contract(TEAM_MANAGER_ADDRESS, contractABI, signer);
+  
+        contract.on("TeamAddedSuccessfully", (teamName) => {
+          console.log(`Team ${teamName} was added successfully.`);
+          toast.success(`Team ${teamName} was added successfully.`);
+          getTeams();
+        });
+  
+        contract.on("TeamResetSuccessfully", () => {
+          console.log("Team reset successfully.");
+          toast.success("Team reset successfully.");
+          getTeams();
+        });
+      } catch (error) {
+        console.error("Error setting up contract event listeners", error);
+      }
+    };
+  
+    setupEventListeners();
+  
+
+
+    
+    // Cleanup event listeners when component unmounts
+    return () => {
+      if (contract) {
+        contract.removeAllListeners("TeamAddedSuccessfully");
+        contract.removeAllListeners("TeamResetSuccessfully");
+      }
+    };
+  }, [address, getTeams]);
+  
+
   return (
     <BaseDialog open={open} closeDialog={handleCloseDialog} className={`w-[490px] h-[440px] bg-black border border-zinc-700 transition-all duration-200`}>
       <div className='w-full h-full flex flex-col'>
         {
-          !address && 
+          !address &&
           <div className='absolute -left-0 w-full h-[90%] mt-1 flex justify-center items-center'>
             <div className='absolute w-full h-full bg-black opacity-80 z-10'></div>
             <div className='relative z-20'>
@@ -114,7 +188,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     id='teamName'
                     name='teamName'
                     placeholder='Team name ...'
-                    height={35}  
+                    height={35}
                   />
                   <div className='team-detail ml-3'>{createTeam.teamName}</div>
                 </div>
@@ -126,7 +200,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     id='memeTokenAddress'
                     name='memeTokenAddress'
                     placeholder='0x0123..'
-                    height={35}  
+                    height={35}
                   />
                   {
                     !validAddress && <span className='text-red-500 text-sm ml-3'>enter a valid address</span>
@@ -138,7 +212,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     Team Leader Address
                     <span className='text-sm text-zinc-600'> (wallet Address)</span>
                   </label>
-                  <div className='ml-3 text-zinc-400'>{ address }</div>
+                  <div className='ml-3 text-zinc-400'>{address}</div>
                 </div>
               </form>
               <div className='italic text-red-500 my-2'>
@@ -149,7 +223,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
               <div className='w-full flex mt-4 justify-between'>
                 <Button
                   outline
-                  onClick={() => {step === STEP_STATUS.INIT ?  handleCloseDialog() : setStep(STEP_STATUS.INIT)}}
+                  onClick={() => { step === STEP_STATUS.INIT ? handleCloseDialog() : setStep(STEP_STATUS.INIT) }}
                   width={80}
                 >
                   {
@@ -176,8 +250,9 @@ function AddTeamDialog({ open, closeDialog }: props) {
           btnError='try again'
         />
       </div>
+      <ToastContainer />
     </BaseDialog>
   )
-}
 
-export default AddTeamDialog
+}
+export default AddTeamDialog;
