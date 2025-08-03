@@ -97,15 +97,15 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
             "Cannot vote for own team"
         );
 
-        require(
-            votingTokenContract.transferFrom(msg.sender, address(this), transferAmount),
-            "Token transfer failed"
-        );
-
         teams[teamName].score += transferAmount;
         userVotes[msg.sender][teamName] += transferAmount;
         totalUserVotes[msg.sender] += transferAmount;
         totalVotes += transferAmount;
+
+         require(
+            votingTokenContract.transferFrom(msg.sender, address(this), transferAmount),
+            "Token transfer failed"
+        );
 
         emit VoteCast(msg.sender, teamName, transferAmount);
     }
