@@ -3,12 +3,10 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumberish,
   BytesLike,
   FunctionFragment,
   Result,
   Interface,
-  AddressLike,
   ContractRunner,
   ContractMethod,
   Listener,
@@ -19,39 +17,23 @@ import type {
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../common";
+} from "../../common";
 
-export interface IERC20Interface extends Interface {
-  getFunction(
-    nameOrSignature: "balanceOf" | "getUri" | "name" | "transferFrom"
-  ): FunctionFragment;
+export interface IMemeTokenInterface extends Interface {
+  getFunction(nameOrSignature: "getUri" | "name"): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "balanceOf",
-    values: [AddressLike]
-  ): string;
   encodeFunctionData(functionFragment: "getUri", values?: undefined): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [AddressLike, AddressLike, BigNumberish]
-  ): string;
 
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getUri", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
 }
 
-export interface IERC20 extends BaseContract {
-  connect(runner?: ContractRunner | null): IERC20;
+export interface IMemeToken extends BaseContract {
+  connect(runner?: ContractRunner | null): IMemeToken;
   waitForDeployment(): Promise<this>;
 
-  interface: IERC20Interface;
-  
+  interface: IMemeTokenInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -90,38 +72,20 @@ export interface IERC20 extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
-
   getUri: TypedContractMethod<[], [string], "view">;
 
   name: TypedContractMethod<[], [string], "view">;
-
-  transferFrom: TypedContractMethod<
-    [sender: AddressLike, recipient: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "balanceOf"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
-  getFunction(
     nameOrSignature: "getUri"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "transferFrom"
-  ): TypedContractMethod<
-    [sender: AddressLike, recipient: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
 
   filters: {};
 }

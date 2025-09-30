@@ -8,7 +8,7 @@ import { useCallback, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { AdminRole, AdminInfo, VotingStatus } from '@/types/admin';
 import { TEAM_MANAGER_ADDRESS } from '@/constants';
-import { TeamsManager__factory } from '@/typechain-types';
+import { TeamsManagerCore__factory } from '@/typechain-types';
 
 export const useAdminRole = () => {
   const {
@@ -41,7 +41,7 @@ export const useAdminRole = () => {
     try {
       setRoleLoading(true);
       const signer = await provider.getSigner();
-      const contract = TeamsManager__factory.connect(TEAM_MANAGER_ADDRESS, signer);
+      const contract = TeamsManagerCore__factory.connect(TEAM_MANAGER_ADDRESS, signer);
 
       // Get role and admin info from contract
       const role = await contract.getAdminRole(address);
@@ -78,7 +78,7 @@ export const useAdminRole = () => {
     try {
       setVotingStatusLoading(true);
       const signer = await provider.getSigner();
-      const contract = TeamsManager__factory.connect(TEAM_MANAGER_ADDRESS, signer);
+      const contract = TeamsManagerCore__factory.connect(TEAM_MANAGER_ADDRESS, signer);
 
       const status = await contract.getVotingStatus();
 

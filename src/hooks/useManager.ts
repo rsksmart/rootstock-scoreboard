@@ -2,7 +2,7 @@
 import { FETCH_STATUS, GOVERNANCE_TOKEN, TEAM_MANAGER_ADDRESS } from '@/constants'
 import { useAuth } from '@/context/AuthContext'
 import { ICreateTeam, ITeam } from '@/interface/ITeam'
-import { TeamsManager, TeamsManager__factory } from '@/typechain-types'
+import { TeamsManagerCore, TeamsManagerCore__factory } from '@/typechain-types'
 import { ABI_ERC20 } from '@/utils/Abi'
 import { ethers } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -18,7 +18,7 @@ const useManager = () => {
   )
 
   const [isLoading, setIsLoading] = useState(FETCH_STATUS.INIT);
-  const [teamManager, setTeamManager] = useState<TeamsManager>()
+  const [teamManager, setTeamManager] = useState<TeamsManagerCore>()
   const {
     provider,
     address,
@@ -35,7 +35,7 @@ const useManager = () => {
     if (provider) {
       PROVIDER.current = await provider.getSigner()
     }
-    const teamManager = TeamsManager__factory.connect(
+    const teamManager = TeamsManagerCore__factory.connect(
       TEAM_MANAGER_ADDRESS!,
       PROVIDER.current
     )
@@ -49,15 +49,20 @@ const useManager = () => {
   }, [provider, initializeProvider])
 
   const getTeams = useCallback(async () => {
-    if (address) {
-      const signer = await provider?.getSigner();
-      const tokenContract = new ethers.Contract(GOVERNANCE_TOKEN!, ABI_ERC20, signer);
-      console.log('tokenContract: ', tokenContract);
-      setContract(tokenContract);
-      const balance = await tokenContract.balanceOf(address);
-      const decimals = 18;
-      const formattedBalance = ethers.formatUnits(balance, decimals);
-      setTokenBalance(Number(formattedBalance));
+    if (address && GOVERNANCE_TOKEN) {
+      try {
+        const signer = await provider?.getSigner();
+        const tokenContract = new ethers.Contract(GOVERNANCE_TOKEN, ABI_ERC20, signer);
+        console.log('tokenContract: ', tokenContract);
+        setContract(tokenContract);
+        const balance = await tokenContract.balanceOf(address);
+        const decimals = 18;
+        const formattedBalance = ethers.formatUnits(balance, decimals);
+        setTokenBalance(Number(formattedBalance));
+      } catch (error) {
+        console.log('Failed to load token balance:', error);
+        setTokenBalance(0);
+      }
     }
 
     try {
