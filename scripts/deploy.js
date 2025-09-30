@@ -59,8 +59,35 @@ async function main() {
   const adminRole = await teamsManager.getAdminRole(deployer.address);
   console.log("✅ Deployer admin role:", adminRole.toString(), "(4 = SUPER_ADMIN)");
 
+  // Add test teams
+  console.log("\n5️⃣  Adding test teams...");
+
+  // Get hardhat test accounts for team leaders
+  const accounts = await hre.ethers.getSigners();
+
+  // Team 1: Doge
+  await teamsManager.addTeam(
+    "Team Doge",
+    memeToken1Address,
+    accounts[1].address // Using second Hardhat account as team leader
+  );
+  console.log("✅ Added Team Doge (Leader:", accounts[1].address + ")");
+
+  // Team 2: Pepe
+  await teamsManager.addTeam(
+    "Team Pepe",
+    memeToken2Address,
+    accounts[2].address // Using third Hardhat account as team leader
+  );
+  console.log("✅ Added Team Pepe (Leader:", accounts[2].address + ")");
+
+  // Verify teams were added
+  const teamNames = await teamsManager.getTeamNames();
+  console.log("✅ Total teams created:", teamNames.length);
+  console.log("   Teams:", teamNames.join(", "));
+
   // Save deployment info
-  console.log("\n5️⃣  Saving deployment info...");
+  console.log("\n6️⃣  Saving deployment info...");
 
   const deploymentInfo = {
     network: hre.network.name,
@@ -105,6 +132,9 @@ MEME_TOKEN_2_ADDRESS=${memeToken2Address}
   console.log("   Governance Token:", governanceTokenAddress);
   console.log("   Meme Token 1 (DOGE):", memeToken1Address);
   console.log("   Meme Token 2 (PEPE):", memeToken2Address);
+  console.log("\n🏆 Test Teams Created:");
+  console.log("   - Team Doge (Leader:", accounts[1].address + ")");
+  console.log("   - Team Pepe (Leader:", accounts[2].address + ")");
   console.log("\n💡 Next Steps:");
   console.log("   1. Copy .env.local to .env if needed");
   console.log("   2. Run: npm run dev");
