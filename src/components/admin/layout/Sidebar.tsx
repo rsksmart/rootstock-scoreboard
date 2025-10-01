@@ -34,7 +34,6 @@ export default function Sidebar() {
       icon: '👑',
       label: 'Admin Management',
       requiredRole: AdminRole.SUPER_ADMIN,
-      badge: 'Soon'
     },
     {
       href: '/admin/emergency',
