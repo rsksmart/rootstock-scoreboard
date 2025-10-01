@@ -53,6 +53,15 @@ function Navbar() {
         {/* Right side content */}
         {address ? (
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* Transparency Link - visible to all */}
+            <Link
+              href="/transparency"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 border border-zinc-700 rounded-lg text-zinc-300 text-sm font-medium hover:bg-zinc-800 hover:text-white transition-colors"
+            >
+              <span>🔍</span>
+              <span>Transparency</span>
+            </Link>
+
             {/* Admin Dashboard Link - only for admins on desktop */}
             {isAdmin && (
               <Link
@@ -100,6 +109,14 @@ function Navbar() {
                       </Link>
                     </>
                   )}
+                  <Link
+                    href="/transparency"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-zinc-300 hover:bg-zinc-800 transition-colors text-sm"
+                  >
+                    <span>🔍</span>
+                    <span>Transparency</span>
+                  </Link>
                   <button
                     onClick={() => {
                       logout();

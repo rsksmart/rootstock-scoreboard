@@ -1,19 +1,19 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { AdminRole } from '@/types/admin';
-import RoleGuard from '@/components/guards/RoleGuard';
 import { ethers } from 'ethers';
+import Navbar from '@/components/navigation/Navbar';
+import Footer from '@/components/footer/Footer';
 
 interface AdminEvent {
-  type: 'TeamAdded' | 'TeamRemoved' | 'VotingEnabled' | 'VotingDisabled' | 'SystemReset' | 'AdminAdded' | 'AdminRemoved' | 'AdminRoleChanged';
+  type: 'TeamAdded' | 'TeamRemoved' | 'VotingEnabled' | 'VotingDisabled' | 'SystemReset';
   timestamp: number;
   admin: string;
   details: string;
   txHash: string;
 }
 
-const AdminActivityLog: React.FC = () => {
+export default function TransparencyPage() {
   const { provider } = useAuth();
   const [events, setEvents] = useState<AdminEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,6 @@ const AdminActivityLog: React.FC = () => {
       setLoading(true);
       const contractAddress = process.env.NEXT_PUBLIC_TEAM_MANAGER_ADDRESS;
 
-      // Get recent blocks (last 1000 blocks or from deployment)
       const currentBlock = await provider.getBlockNumber();
       const fromBlock = Math.max(0, currentBlock - 10000);
 
@@ -42,28 +41,22 @@ const AdminActivityLog: React.FC = () => {
           'event VotingEnabled(uint256 startTime, uint256 endTime)',
           'event VotingDisabled()',
           'event SystemReset(address indexed admin)',
-          'event AdminAdded(address indexed admin, uint8 role)',
-          'event AdminRemoved(address indexed admin, uint8 role)',
-          'event AdminRoleChanged(address indexed admin, uint8 oldRole, uint8 newRole)',
         ],
         provider
       );
 
       const allEvents: AdminEvent[] = [];
 
-      // Fetch all admin-related events
       const teamAddedEvents = await contract.queryFilter('TeamAdded', fromBlock, 'latest');
       const teamRemovedEvents = await contract.queryFilter('TeamRemoved', fromBlock, 'latest');
       const votingEnabledEvents = await contract.queryFilter('VotingEnabled', fromBlock, 'latest');
       const votingDisabledEvents = await contract.queryFilter('VotingDisabled', fromBlock, 'latest');
       const systemResetEvents = await contract.queryFilter('SystemReset', fromBlock, 'latest');
 
-      // Process events
       for (const event of teamAddedEvents) {
         const block = await event.getBlock();
         const tx = await event.getTransaction();
 
-        // Parse transaction input to get team name
         let teamName = 'Unknown';
         try {
           const iface = new ethers.Interface([
@@ -88,7 +81,6 @@ const AdminActivityLog: React.FC = () => {
         const block = await event.getBlock();
         const tx = await event.getTransaction();
 
-        // Parse transaction input to get team name
         let teamName = 'Unknown';
         try {
           const iface = new ethers.Interface([
@@ -144,7 +136,6 @@ const AdminActivityLog: React.FC = () => {
         });
       }
 
-      // Sort by timestamp descending
       allEvents.sort((a, b) => b.timestamp - a.timestamp);
       setEvents(allEvents);
     } catch (error) {
@@ -174,12 +165,6 @@ const AdminActivityLog: React.FC = () => {
         return 'text-custom-orange';
       case 'SystemReset':
         return 'text-red-500';
-      case 'AdminAdded':
-        return 'text-custom-lime';
-      case 'AdminRemoved':
-        return 'text-red-400';
-      case 'AdminRoleChanged':
-        return 'text-custom-cyan';
       default:
         return 'text-zinc-400';
     }
@@ -190,83 +175,115 @@ const AdminActivityLog: React.FC = () => {
     : events.filter(e => e.type === filter);
 
   return (
-    <RoleGuard requiredRole={AdminRole.TEAM_MANAGER}>
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg">
-        {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-zinc-800">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white">Admin Activity Log</h2>
-              <p className="text-sm text-zinc-400 mt-1">Transparent record of all administrative actions</p>
-            </div>
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      <Navbar />
 
-            {/* Filter */}
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="px-3 py-2 bg-black border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-custom-green focus:border-transparent"
-            >
-              <option value="all">All Events</option>
-              <option value="TeamAdded">Teams Added</option>
-              <option value="TeamRemoved">Teams Removed</option>
-              <option value="VotingEnabled">Voting Started</option>
-              <option value="VotingDisabled">Voting Stopped</option>
-              <option value="SystemReset">System Resets</option>
-            </select>
-          </div>
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+            🔍 Transparency Dashboard
+          </h1>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-3xl">
+            All administrative actions are permanently recorded on the Rootstock blockchain.
+            This page provides real-time visibility into system management activities, ensuring
+            complete transparency and accountability.
+          </p>
         </div>
 
-        {/* Events List */}
-        <div className="p-4 sm:p-6">
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-custom-green mx-auto mb-4"></div>
-              <p className="text-zinc-400 text-sm">Loading events...</p>
+        {/* Info Panel */}
+        <div className="bg-custom-green/10 border border-custom-green/30 rounded-lg p-4 mb-6">
+          <h3 className="text-custom-green font-semibold mb-2 flex items-center gap-2">
+            <span>✓</span>
+            <span>Blockchain-Verified Actions</span>
+          </h3>
+          <ul className="text-sm text-zinc-300 space-y-1 ml-6">
+            <li>• All events are fetched directly from the blockchain</li>
+            <li>• Events cannot be deleted or modified</li>
+            <li>• Click "View Tx" to verify any action on the block explorer</li>
+            <li>• Admin addresses and timestamps are cryptographically verified</li>
+          </ul>
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg">
+          {/* Filter Header */}
+          <div className="p-4 sm:p-6 border-b border-zinc-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Administrative Actions</h2>
+                <p className="text-sm text-zinc-400 mt-1">
+                  {events.length} total events recorded
+                </p>
+              </div>
+
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="px-3 py-2 bg-black border border-zinc-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-custom-green focus:border-transparent"
+              >
+                <option value="all">All Events</option>
+                <option value="TeamAdded">Teams Added</option>
+                <option value="TeamRemoved">Teams Removed</option>
+                <option value="VotingEnabled">Voting Started</option>
+                <option value="VotingDisabled">Voting Stopped</option>
+                <option value="SystemReset">System Resets</option>
+              </select>
             </div>
-          ) : filteredEvents.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-zinc-500 text-sm">No admin events found</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredEvents.slice(0, 50).map((event, index) => (
-                <div
-                  key={index}
-                  className="bg-black border border-zinc-800 rounded-lg p-4 hover:border-zinc-700 transition-colors"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-semibold text-sm ${getEventColor(event.type)}`}>
-                          {event.type}
-                        </span>
-                        <span className="text-xs text-zinc-600">•</span>
-                        <span className="text-xs text-zinc-500">
-                          {formatTimestamp(event.timestamp)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-zinc-300">{event.details}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500">
-                        <span>Admin: {formatAddress(event.admin)}</span>
-                        <a
-                          href={`${process.env.NEXT_PUBLIC_EXPLORER}/tx/${event.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-custom-green hover:underline"
-                        >
-                          View Tx →
-                        </a>
+          </div>
+
+          {/* Events List */}
+          <div className="p-4 sm:p-6">
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-custom-green mx-auto mb-4"></div>
+                <p className="text-zinc-400 text-sm">Loading blockchain events...</p>
+              </div>
+            ) : filteredEvents.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-zinc-500 text-sm">No events found</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredEvents.map((event, index) => (
+                  <div
+                    key={index}
+                    className="bg-black border border-zinc-800 rounded-lg p-4 hover:border-zinc-700 transition-colors"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className={`font-semibold text-sm ${getEventColor(event.type)}`}>
+                            {event.type}
+                          </span>
+                          <span className="text-xs text-zinc-600">•</span>
+                          <span className="text-xs text-zinc-500">
+                            {formatTimestamp(event.timestamp)}
+                          </span>
+                        </div>
+                        <p className="text-sm sm:text-base text-zinc-200 mb-2">{event.details}</p>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-zinc-500">
+                          <span className="font-mono">Admin: {formatAddress(event.admin)}</span>
+                          <a
+                            href={`${process.env.NEXT_PUBLIC_EXPLORER}/tx/${event.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-custom-green hover:underline inline-flex items-center gap-1"
+                          >
+                            View Transaction →
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </RoleGuard>
-  );
-};
+      </main>
 
-export default AdminActivityLog;
+      <Footer />
+    </div>
+  );
+}
