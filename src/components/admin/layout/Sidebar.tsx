@@ -40,7 +40,6 @@ export default function Sidebar() {
       icon: '🚨',
       label: 'Emergency Controls',
       requiredRole: AdminRole.RECOVERY_ADMIN,
-      badge: 'Soon'
     },
   ];
 
