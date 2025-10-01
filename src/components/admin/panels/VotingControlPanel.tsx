@@ -6,10 +6,11 @@ import { AdminRole } from '@/types/admin';
 import RoleGuard from '@/components/guards/RoleGuard';
 import { FETCH_STATUS } from '@/constants';
 import Button from '@/components/common/Button';
+import TypedConfirmDialog from '@/components/dialog/TypedConfirmDialog';
 
 const VotingControlPanel: React.FC = () => {
-  const { votingStatus, fetchVotingStatus } = useAuth();
-  const { enableVoting, disableVoting, setVotingLimits, isLoading } = useManager();
+  const { votingStatus, fetchVotingStatus, userRole } = useAuth();
+  const { enableVoting, disableVoting, setVotingLimits, resetSystem, isLoading } = useManager();
 
   // Voting period state
   const [duration, setDuration] = useState<string>('');
@@ -22,6 +23,7 @@ const VotingControlPanel: React.FC = () => {
   // UI state
   const [showLimitsForm, setShowLimitsForm] = useState(false);
   const [showStartForm, setShowStartForm] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
 
   const handleEnableVoting = async () => {
     if (!duration) {
@@ -43,6 +45,12 @@ const VotingControlPanel: React.FC = () => {
   const handleDisableVoting = async () => {
     if (!confirm('Are you sure you want to disable voting?')) return;
     await disableVoting();
+    await fetchVotingStatus();
+  };
+
+  const handleResetSystem = async () => {
+    await resetSystem();
+    setShowResetDialog(false);
     await fetchVotingStatus();
   };
 
@@ -292,8 +300,56 @@ const VotingControlPanel: React.FC = () => {
                 '❌ Transaction failed. Please try again.'}
             </div>
           )}
+
+          {/* Danger Zone - System Reset */}
+          {userRole === AdminRole.SUPER_ADMIN && (
+            <div className="border-t border-red-500/20 pt-4 mt-4">
+              <div className="bg-red-500/5 border border-red-500/30 rounded-lg p-3 sm:p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-lg">⚠️</span>
+                    <div>
+                      <h3 className="font-bold text-red-400 text-sm">
+                        System Reset
+                      </h3>
+                      <p className="text-xs text-zinc-400">
+                        Delete all teams/votes - <span className="font-semibold text-red-400">Cannot be undone</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => setShowResetDialog(true)}
+                    className="bg-red-600 hover:bg-red-700 border-red-600 text-xs sm:text-sm px-3 py-1.5"
+                    width={0}
+                    disabled={isLoading !== FETCH_STATUS.INIT}
+                  >
+                    Reset System
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Reset System Confirmation Dialog */}
+      <TypedConfirmDialog
+        open={showResetDialog}
+        title="⚠️ SYSTEM RESET"
+        action="Permanently delete all teams, votes, and reset the entire voting system"
+        consequences={[
+          'ALL TEAMS will be permanently deleted',
+          'ALL VOTES will be permanently deleted',
+          'Voting will be disabled',
+          'All team leaders will be unassigned',
+          'Vote statistics will be reset to zero',
+          'This action is IRREVERSIBLE',
+        ]}
+        confirmText="RESET SYSTEM"
+        onConfirm={handleResetSystem}
+        onCancel={() => setShowResetDialog(false)}
+      />
     </RoleGuard>
   );
 };

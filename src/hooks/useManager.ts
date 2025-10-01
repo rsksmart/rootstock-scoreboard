@@ -197,6 +197,21 @@ const useManager = () => {
     }
   };
 
+  // System Reset Function
+  const resetSystem = async () => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.reset();
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+    } catch (error) {
+      console.error('Failed to reset system:', error);
+      setIsLoading(FETCH_STATUS.ERROR);
+    }
+  };
+
   return {
     addVote,
     addTeam,
@@ -209,6 +224,8 @@ const useManager = () => {
     setVotingLimits,
     // Team management
     removeTeam,
+    // System reset
+    resetSystem,
   }
 }
 
