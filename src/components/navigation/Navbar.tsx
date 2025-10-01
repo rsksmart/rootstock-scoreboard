@@ -1,5 +1,6 @@
 'use client';
 import logo from '@/app/assets/img/logo.svg';
+import Link from 'next/link';
 import ConnectWalletButton from './ConnectWalletButton';
 import { useAuth } from '@/context/AuthContext';
 import MetamaskIcon from '../icons/MetamaskIcon';
@@ -17,7 +18,7 @@ function Navbar() {
     <nav className="h-16 sm:h-20">
       <div className="w-full px-3 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-10 fixed bg-black border-b border-zinc-600">
         {/* Logo */}
-        <div className="flex-shrink-0">
+        <Link href="/" className="flex-shrink-0">
           <Image
             src={logo.src}
             alt="Rootstock Logo"
@@ -27,11 +28,22 @@ function Navbar() {
             className="sm:w-[170px]"
             priority
           />
-        </div>
+        </Link>
 
         {/* Right side content */}
         {address ? (
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* Admin Dashboard Link - only for admins */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-custom-green/10 border border-custom-green/20 rounded-lg text-custom-green text-sm font-medium hover:bg-custom-green/20 transition-colors"
+              >
+                <span>⚙️</span>
+                <span>Admin</span>
+              </Link>
+            )}
+
             {/* Address display - responsive */}
             <div className="bg-white flex items-center gap-2 sm:gap-3 rounded-md text-black px-2 sm:px-3 py-1 sm:py-1.5">
               <MetamaskIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />

@@ -137,12 +137,61 @@ const useManager = () => {
     }
   }
 
+  // Voting Control Functions
+  const enableVoting = async (duration: number = 0) => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.setReadyToVote(duration);
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+    } catch (error) {
+      console.error('Failed to enable voting:', error);
+      setIsLoading(FETCH_STATUS.ERROR);
+    }
+  };
+
+  const disableVoting = async () => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.disableVoting();
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+    } catch (error) {
+      console.error('Failed to disable voting:', error);
+      setIsLoading(FETCH_STATUS.ERROR);
+    }
+  };
+
+  const setVotingLimits = async (minAmount: string, maxAmount: string) => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const min = ethers.parseEther(minAmount);
+      const max = ethers.parseEther(maxAmount);
+      const response = await teamManager?.setVotingLimits(min, max);
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+    } catch (error) {
+      console.error('Failed to set voting limits:', error);
+      setIsLoading(FETCH_STATUS.ERROR);
+    }
+  };
+
   return {
     addVote,
     addTeam,
     getTeams,
     isLoading,
     setIsLoading,
+    // Voting control
+    enableVoting,
+    disableVoting,
+    setVotingLimits,
   }
 }
 
