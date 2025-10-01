@@ -86,8 +86,27 @@ async function main() {
   console.log("✅ Total teams created:", teamNames.length);
   console.log("   Teams:", teamNames.join(", "));
 
+  // Deploy AdvancedGovernance
+  console.log("\n6️⃣  Deploying AdvancedGovernance...");
+  const AdvancedGovernance = await hre.ethers.getContractFactory("AdvancedGovernance");
+
+  // Constructor params: initialAdmins[], stakingToken, minimumStake
+  const governanceAdmins = [deployer.address, accounts[1].address, accounts[2].address]; // Need at least 3 admins
+  const governanceMinStake = hre.ethers.parseEther("1000"); // 1000 tokens minimum stake
+
+  const advancedGovernance = await AdvancedGovernance.deploy(
+    governanceAdmins,
+    governanceTokenAddress,
+    governanceMinStake
+  );
+  await advancedGovernance.waitForDeployment();
+  const advancedGovernanceAddress = await advancedGovernance.getAddress();
+  console.log("✅ AdvancedGovernance deployed to:", advancedGovernanceAddress);
+  console.log("✅ Initial admins:", governanceAdmins.length, "admins");
+  console.log("✅ Required confirmations:", await advancedGovernance.requiredConfirmations());
+
   // Save deployment info
-  console.log("\n6️⃣  Saving deployment info...");
+  console.log("\n7️⃣  Saving deployment info...");
 
   const deploymentInfo = {
     network: hre.network.name,
@@ -95,6 +114,7 @@ async function main() {
     timestamp: new Date().toISOString(),
     contracts: {
       TeamsManagerCore: teamsManagerAddress,
+      AdvancedGovernance: advancedGovernanceAddress,
       GovernanceToken: governanceTokenAddress,
       MemeToken1_DOGE: memeToken1Address,
       MemeToken2_PEPE: memeToken2Address
@@ -108,6 +128,7 @@ async function main() {
   // Create .env.local file
   const envContent = `# Auto-generated during deployment
 NEXT_PUBLIC_TEAM_MANAGER_ADDRESS=${teamsManagerAddress}
+NEXT_PUBLIC_ADVANCED_GOVERNANCE_ADDRESS=${advancedGovernanceAddress}
 NEXT_PUBLIC_RPC_URL=http://127.0.0.1:8545
 NEXT_PUBLIC_EXPLORER=http://localhost:3000
 NEXT_PUBLIC_PINATA_URL=https://gateway.pinata.cloud/ipfs/
@@ -129,12 +150,17 @@ MEME_TOKEN_2_ADDRESS=${memeToken2Address}
   console.log("=" .repeat(60));
   console.log("\n📋 Contract Addresses:");
   console.log("   TeamsManagerCore:", teamsManagerAddress);
+  console.log("   AdvancedGovernance:", advancedGovernanceAddress);
   console.log("   Governance Token:", governanceTokenAddress);
   console.log("   Meme Token 1 (DOGE):", memeToken1Address);
   console.log("   Meme Token 2 (PEPE):", memeToken2Address);
   console.log("\n🏆 Test Teams Created:");
   console.log("   - Team Doge (Leader:", accounts[1].address + ")");
   console.log("   - Team Pepe (Leader:", accounts[2].address + ")");
+  console.log("\n⚖️  Governance Setup:");
+  console.log("   - Initial Admins:", governanceAdmins.length);
+  console.log("   - Required Confirmations:", await advancedGovernance.requiredConfirmations());
+  console.log("   - Minimum Stake:", hre.ethers.formatEther(governanceMinStake), "GOV");
   console.log("\n💡 Next Steps:");
   console.log("   1. Copy .env.local to .env if needed");
   console.log("   2. Run: npm run dev");

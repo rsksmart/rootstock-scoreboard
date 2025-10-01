@@ -36,6 +36,18 @@ export default function Sidebar() {
       requiredRole: AdminRole.SUPER_ADMIN,
     },
     {
+      href: '/admin/governance',
+      icon: '⚖️',
+      label: 'Multi-Sig Governance',
+      requiredRole: AdminRole.TEAM_MANAGER,
+    },
+    {
+      href: '/admin/timelock',
+      icon: '🕐',
+      label: 'Time-Locked Actions',
+      requiredRole: AdminRole.SUPER_ADMIN,
+    },
+    {
       href: '/admin/emergency',
       icon: '🚨',
       label: 'Emergency Controls',
