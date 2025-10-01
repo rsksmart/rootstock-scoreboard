@@ -26,8 +26,8 @@ const Button: React.FC<ButtonProps> = ({
   rounded = true,
   outline = false,
   className,
-  height = 36,
-  width = 140,
+  height = 24,
+  width = 136,
   onClick,
   disabled = false,
   show = true

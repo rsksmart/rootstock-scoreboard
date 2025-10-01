@@ -18,7 +18,7 @@ function Content() {
   }, [provider, getTeams]);
   return (
     <>
-      <section className='mt-16 pt-5 w-full lg:w-[90%] xl:w-[1300px] m-auto'>
+      <section className='mt-5 sm:mt-5 pt-3 sm:pt-5 w-full px-3 sm:px-6 lg:w-[90%] xl:w-[1300px] m-auto'>
         <div className='w-full flex flex-col'>
           <div className='flex gap-3'>
             <div className='flex-1'>
@@ -26,9 +26,9 @@ function Content() {
             </div>
           </div>
         </div>
-        <div className='mt-10'>
-          <div className='w-full flex justify-between'>
-            <h2 className='text-2xl font-bold'>Teams List</h2>
+        <div className='mt-6 sm:mt-8 md:mt-10'>
+          <div className='w-full flex sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4'>
+            <h2 className='text-xl sm:text-2xl font-bold'>Teams List</h2>
             <Button
               onClick={() => setDialog(true)}
               variant='secondary'
