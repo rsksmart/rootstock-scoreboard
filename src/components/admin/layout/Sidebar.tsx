@@ -17,6 +17,12 @@ export default function Sidebar() {
       requiredRole: AdminRole.VOTE_ADMIN,
     },
     {
+      href: '/admin/activity',
+      icon: '📋',
+      label: 'Activity Log',
+      requiredRole: AdminRole.TEAM_MANAGER,
+    },
+    {
       href: '/admin/teams',
       icon: '👥',
       label: 'Team Management',

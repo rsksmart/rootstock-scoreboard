@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import AddVoteDialog from '../dialog/AddVoteDialog';
-import ConfirmDialog from '../dialog/ConfirmDialog';
+import AdminActionConfirm from '../dialog/AdminActionConfirm';
 import Button from '../common/Button';
 import { useAuth } from '@/context/AuthContext';
 import { AdminRole } from '@/types/admin';
@@ -133,15 +133,21 @@ function TableTokens() {
         closeDialog={() => setDialog(false)}
       />
 
-      <ConfirmDialog
+      <AdminActionConfirm
         open={confirmDialog}
         title="Remove Team"
-        message={`Are you sure you want to remove "${teamToRemove?.teamName}"? This action cannot be undone and will permanently delete the team.`}
-        confirmText="Remove Team"
-        cancelText="Cancel"
+        action={`Permanently remove team "${teamToRemove?.teamName}" from the voting system`}
+        consequences={[
+          'Team will be immediately removed from the leaderboard',
+          'All votes for this team will remain recorded on-chain',
+          'Team leader and members will lose their team association',
+          'This action is permanently logged and publicly visible',
+          'Action cannot be reversed - team must be re-added manually',
+        ]}
+        requiresRole="TEAM_MANAGER or higher"
+        isReversible={false}
         onConfirm={handleConfirmRemove}
         onCancel={handleCancelRemove}
-        danger={true}
       />
     </>
   )
