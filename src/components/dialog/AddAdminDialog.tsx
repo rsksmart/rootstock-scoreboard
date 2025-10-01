@@ -76,18 +76,18 @@ export default function AddAdminDialog({
   };
 
   return (
-    <BaseDialog open={open} closeDialog={handleClose} className="w-full max-w-[490px] h-auto min-h-[440px] sm:h-[440px] mx-4 sm:mx-0 bg-black border border-zinc-700">
+    <BaseDialog open={open} closeDialog={handleClose} className="w-full max-w-[480px] h-auto min-h-[400px] sm:h-[400px] mx-4 sm:mx-0 bg-black border border-zinc-700">
       <div className="w-full h-full flex flex-col">
         <ContentDialog
           initialContent={
             <>
-              <h2 className={`${step === STEP_STATUS.INIT ? 'bg-custom-green' : 'bg-custom-pink'} mt-1 font-bold text-lg sm:text-xl text-black w-max px-1 items-start`}>
+              <h2 className={`${step === STEP_STATUS.INIT ? 'bg-custom-green' : 'bg-custom-pink'} mt-1 font-bold text-base sm:text-lg text-black w-max px-1 items-start`}>
                 {step === STEP_STATUS.INIT ? 'ADD ADMINISTRATOR' : 'CONFIRM ADMIN DATA'}
               </h2>
 
-              <form className={`w-full mt-4 sm:mt-7 items-center flex flex-wrap form-team ${step === STEP_STATUS.CONFIRM ? 'confirm' : ''}`}>
-                <div className="w-full px-1 py-2 sm:p-2">
-                  <label htmlFor="address" className="font-bold text-sm sm:text-base ml-1 sm:ml-3 mb-1 block">
+              <form className={`w-full mt-3 sm:mt-5 items-center flex flex-wrap form-team ${step === STEP_STATUS.CONFIRM ? 'confirm' : ''}`}>
+                <div className="w-full px-1 py-1.5 sm:p-2">
+                  <label htmlFor="address" className="font-semibold text-xs sm:text-sm ml-1 sm:ml-3 mb-1 block">
                     Administrator Address
                   </label>
                   <Input
@@ -96,38 +96,40 @@ export default function AddAdminDialog({
                     id="address"
                     name="address"
                     placeholder="0x..."
-                    height={35}
+                    height={32}
+                    className="ml-1 sm:ml-3"
                   />
                   {!validAddress && (
-                    <span className="text-red-500 text-xs sm:text-sm ml-1 sm:ml-3">enter a valid address</span>
+                    <span className="text-red-500 text-xs ml-1 sm:ml-3 mt-1 block">enter a valid address</span>
                   )}
-                  <div className="team-detail ml-1 sm:ml-3 text-sm sm:text-base break-all">{address}</div>
+                  <div className="team-detail ml-1 sm:ml-3 text-xs sm:text-sm break-all">{address}</div>
                 </div>
 
-                <div className="w-full px-1 py-2 sm:p-2">
-                  <label htmlFor="role" className="font-bold text-sm sm:text-base ml-1 sm:ml-3 mb-1 block">
+                <div className="w-full px-1 py-1.5 sm:p-2">
+                  <label htmlFor="role" className="font-semibold text-xs sm:text-sm ml-1 sm:ml-3 mb-1 block">
                     Admin Role
                   </label>
                   <select
                     value={role}
                     onChange={(e) => setRole(Number(e.target.value) as AdminRole)}
-                    className="w-full px-3 py-2 bg-black border border-zinc-700 rounded-lg text-white ml-1 sm:ml-3 text-sm sm:text-base"
+                    className="w-full px-3 py-2 bg-black border border-zinc-700 rounded-lg text-white ml-1 sm:ml-3 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-custom-green"
+                    style={{ height: '32px' }}
                   >
                     <option value={AdminRole.TEAM_MANAGER}>TEAM_MANAGER</option>
                     <option value={AdminRole.VOTE_ADMIN}>VOTE_ADMIN</option>
                     <option value={AdminRole.RECOVERY_ADMIN}>RECOVERY_ADMIN</option>
                     <option value={AdminRole.SUPER_ADMIN}>SUPER_ADMIN</option>
                   </select>
-                  <div className="team-detail ml-1 sm:ml-3 text-sm sm:text-base text-custom-green font-semibold">{getRoleName(role)}</div>
+                  <div className="team-detail ml-1 sm:ml-3 text-xs sm:text-sm text-custom-green font-semibold">{getRoleName(role)}</div>
                 </div>
 
                 {step === STEP_STATUS.CONFIRM && (
-                  <div className="w-full px-1 py-2 sm:p-2 mt-2">
-                    <div className="ml-1 sm:ml-3 border-l-2 border-custom-orange pl-3 py-2">
-                      <p className="text-xs sm:text-sm text-zinc-400 mb-1">
+                  <div className="w-full px-1 py-1.5 sm:p-2 mt-1">
+                    <div className="ml-1 sm:ml-3 border-l-2 border-custom-orange pl-3 py-1.5">
+                      <p className="text-xs text-zinc-400 mb-1">
                         This admin will be able to:
                       </p>
-                      <ul className="text-xs sm:text-sm text-zinc-300 space-y-1">
+                      <ul className="text-xs text-zinc-300 space-y-0.5">
                         {role >= AdminRole.TEAM_MANAGER && <li>• Manage teams</li>}
                         {role >= AdminRole.VOTE_ADMIN && <li>• Control voting</li>}
                         {role >= AdminRole.RECOVERY_ADMIN && <li>• Trigger emergency mode</li>}
@@ -138,12 +140,12 @@ export default function AddAdminDialog({
                 )}
               </form>
 
-              <div className="w-full flex flex-row mt-4 justify-between gap-2 px-1 sm:px-0">
+              <div className="w-full flex flex-row mt-3 justify-between gap-2 px-1 sm:px-0">
                 <Button
                   outline
                   onClick={() => {step === STEP_STATUS.INIT ? handleClose() : setStep(STEP_STATUS.INIT)}}
-                  width={140}
-                  className="flex-1 sm:flex-none sm:w-[140px]"
+                  width={120}
+                  className="flex-1 sm:flex-none sm:w-[120px] text-sm"
                 >
                   {step === STEP_STATUS.INIT ? 'Cancel' : 'Back'}
                 </Button>
@@ -151,8 +153,8 @@ export default function AddAdminDialog({
                   onClick={handleSubmit}
                   variant="secondary"
                   outline
-                  width={140}
-                  className="flex-1 sm:flex-none sm:w-[140px]"
+                  width={120}
+                  className="flex-1 sm:flex-none sm:w-[120px] text-sm"
                 >
                   {step === STEP_STATUS.INIT ? 'Next' : 'Add Admin'}
                 </Button>
