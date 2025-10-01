@@ -182,6 +182,21 @@ const useManager = () => {
     }
   };
 
+  // Team Management Functions
+  const removeTeam = async (teamName: string) => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.removeTeam(teamName);
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+    } catch (error) {
+      console.error('Failed to remove team:', error);
+      setIsLoading(FETCH_STATUS.ERROR);
+    }
+  };
+
   return {
     addVote,
     addTeam,
@@ -192,6 +207,8 @@ const useManager = () => {
     enableVoting,
     disableVoting,
     setVotingLimits,
+    // Team management
+    removeTeam,
   }
 }
 

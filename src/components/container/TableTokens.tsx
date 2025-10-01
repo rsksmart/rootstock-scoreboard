@@ -1,15 +1,43 @@
 import React, { useState } from 'react'
 import AddVoteDialog from '../dialog/AddVoteDialog';
+import ConfirmDialog from '../dialog/ConfirmDialog';
 import Button from '../common/Button';
 import { useAuth } from '@/context/AuthContext';
+import { AdminRole } from '@/types/admin';
 import { PINATA_URL } from '@/constants';
 import CopyIcon from '../icons/CopyIcon';
 import CopyContent from './CopyContent';
 import { ITeam } from '@/interface/ITeam';
+import useManager from '@/hooks/useManager';
+import { FETCH_STATUS } from '@/constants';
 
 function TableTokens() {
   const [dialog, setDialog] = useState<boolean>(false);
-  const { teams, setTeam } = useAuth();
+  const [confirmDialog, setConfirmDialog] = useState<boolean>(false);
+  const [teamToRemove, setTeamToRemove] = useState<ITeam | null>(null);
+  const { teams, setTeam, userRole, isAdmin } = useAuth();
+  const { removeTeam, isLoading, getTeams } = useManager();
+
+  const handleRemoveClick = (team: ITeam) => {
+    setTeamToRemove(team);
+    setConfirmDialog(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    if (teamToRemove) {
+      await removeTeam(teamToRemove.teamName);
+      setConfirmDialog(false);
+      setTeamToRemove(null);
+      if (isLoading === FETCH_STATUS.COMPLETED) {
+        await getTeams();
+      }
+    }
+  };
+
+  const handleCancelRemove = () => {
+    setConfirmDialog(false);
+    setTeamToRemove(null);
+  };
 
   const teamsFiltered = () => {
     const newTeams = teams?.sort((a, b) => b.score! - a.score!);
@@ -40,7 +68,10 @@ function TableTokens() {
                 <th className='w-36 sm:w-44'>Leader Address</th>
                 <th className='w-36 sm:w-44'>Meme Token Address</th>
                 <th className='w-20 sm:w-24'>Score</th>
-                <th className='w-24 sm:w-28'>Option</th>
+                <th className='w-24 sm:w-28'>Vote</th>
+                {isAdmin && userRole >= AdminRole.TEAM_MANAGER && (
+                  <th className='w-24 sm:w-28'>Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -75,6 +106,20 @@ function TableTokens() {
                         </Button>
                       </div>
                     </td>
+                    {isAdmin && userRole >= AdminRole.TEAM_MANAGER && (
+                      <td>
+                        <div className='flex justify-center'>
+                          <Button
+                            onClick={() => handleRemoveClick(team)}
+                            className='text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 bg-red-600 hover:bg-red-700 border-red-600 text-white'
+                            width={80}
+                            disabled={isLoading !== FETCH_STATUS.INIT}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               }
@@ -86,6 +131,17 @@ function TableTokens() {
       <AddVoteDialog
         open={dialog}
         closeDialog={() => setDialog(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmDialog}
+        title="Remove Team"
+        message={`Are you sure you want to remove "${teamToRemove?.teamName}"? This action cannot be undone and will permanently delete the team.`}
+        confirmText="Remove Team"
+        cancelText="Cancel"
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+        danger={true}
       />
     </>
   )
