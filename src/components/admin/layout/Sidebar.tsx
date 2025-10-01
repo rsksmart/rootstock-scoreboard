@@ -63,7 +63,7 @@ export default function Sidebar() {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/30 z-30"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -75,7 +75,7 @@ export default function Sidebar() {
           lg:sticky lg:top-0
           h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)]
           w-64 sm:w-72 bg-black border-r border-zinc-800
-          transform transition-transform duration-300 ease-in-out z-30
+          transform transition-transform duration-300 ease-in-out z-40
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >

@@ -117,29 +117,29 @@ const VotingControlPanel: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-3">
               {!votingStatus?.isActive ? (
-                <Button
-                  onClick={() => setShowStartForm(!showStartForm)}
+                <Button width={0}
+                  onClick={() => setShowStartForm(!showStartForm)} width={0}
                   variant="secondary"
                   outline
-                  className={`flex-1 ${showStartForm ? 'bg-custom-green/10 border-custom-green' : ''}`}
+                  className={`w-full sm:flex-1 ${showStartForm ? 'bg-custom-green/10 border-custom-green' : ''}`}
                 >
                   {showStartForm ? 'Hide Form' : 'Start Voting'}
                 </Button>
               ) : (
-                <Button
+                <Button width={0}
                   onClick={handleDisableVoting}
                   variant="secondary"
                   outline
-                  className="flex-1 border-red-500 text-red-500 hover:bg-red-500/10"
+                  className="w-full sm:flex-1 border-red-500 text-red-500 hover:bg-red-500/10"
                 >
                   Stop Voting
                 </Button>
               )}
 
-              <Button
+              <Button width={0}
                 onClick={() => setShowLimitsForm(!showLimitsForm)}
                 outline
-                className={`flex-1 ${showLimitsForm ? 'bg-custom-green/10 border-custom-green' : ''}`}
+                className={`w-full sm:flex-1 ${showLimitsForm ? 'bg-custom-green/10 border-custom-green' : ''}`}
               >
                 {showLimitsForm ? 'Hide Limits' : 'Configure Limits'}
               </Button>
@@ -190,20 +190,20 @@ const VotingControlPanel: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
+                <Button width={0}
                   onClick={handleEnableVoting}
                   variant="secondary"
                   outline
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 >
                   {isLoading !== FETCH_STATUS.INIT
                     ? 'Processing...'
                     : 'Confirm & Start'}
                 </Button>
-                <Button
+                <Button width={0}
                   onClick={() => setShowStartForm(false)}
                   outline
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 >
                   Cancel
                 </Button>
@@ -251,20 +251,20 @@ const VotingControlPanel: React.FC = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
+                <Button width={0}
                   onClick={handleSetLimits}
                   variant="secondary"
                   outline
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 >
                   {isLoading !== FETCH_STATUS.INIT
                     ? 'Processing...'
                     : 'Update Limits'}
                 </Button>
-                <Button
+                <Button width={0}
                   onClick={() => setShowLimitsForm(false)}
                   outline
-                  className="flex-1"
+                  className="w-full sm:flex-1"
                 >
                   Cancel
                 </Button>
