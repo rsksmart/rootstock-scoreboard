@@ -2,7 +2,7 @@ import BaseDialog from './BaseDialog'
 import Input from '../common/Input'
 import Button from '../common/Button'
 import { FETCH_STATUS } from '@/constants'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import ContentDialog from './ContentDialog'
 import { ICreateTeam } from '@/interface/ITeam'
 import { useAuth } from '@/context/AuthContext'
@@ -86,7 +86,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
     }
   }
   return (
-    <BaseDialog open={open} closeDialog={handleCloseDialog} className={`w-[490px] h-[440px] bg-black border border-zinc-700 transition-all duration-200`}>
+    <BaseDialog open={open} closeDialog={handleCloseDialog} className={`w-full max-w-[490px] h-auto min-h-[440px] sm:h-[440px] mx-4 sm:mx-0 bg-black border border-zinc-700 transition-all duration-200`}>
       <div className='w-full h-full flex flex-col'>
         {
           !address && 
@@ -100,14 +100,14 @@ function AddTeamDialog({ open, closeDialog }: props) {
         <ContentDialog
           initialContent={
             <>
-              <h2 className={`${step === STEP_STATUS.INIT ? 'bg-custom-green' : 'bg-custom-pink'} mt-1 font-bold text-xl text-black w-max px-1 items-start`}>
+              <h2 className={`${step === STEP_STATUS.INIT ? 'bg-custom-green' : 'bg-custom-pink'} mt-1 font-bold text-lg sm:text-xl text-black w-max px-1 items-start`}>
                 {
                   step === STEP_STATUS.INIT ? 'CREATE TEAM' : 'CONFIRM TEAM DATA'
                 }
               </h2>
-              <form className={`w-full mt-7 items-center flex flex-wrap form-team ${step === STEP_STATUS.CONFIRM ? 'confirm' : ''}`}>
-                <div className='w-full p-2'>
-                  <label htmlFor="name" className='font-bold text-base ml-3 mb-1 block'>Team Name</label>
+              <form className={`w-full mt-4 sm:mt-7 items-center flex flex-wrap form-team ${step === STEP_STATUS.CONFIRM ? 'confirm' : ''}`}>
+                <div className='w-full px-1 py-2 sm:p-2'>
+                  <label htmlFor="name" className='font-bold text-sm sm:text-base ml-1 sm:ml-3 mb-1 block'>Team Name</label>
                   <Input
                     value={createTeam.teamName}
                     onChange={(e) => handleFormCreateAirdrop(e)}
@@ -116,10 +116,10 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     placeholder='Team name ...'
                     height={35}  
                   />
-                  <div className='team-detail ml-3'>{createTeam.teamName}</div>
+                  <div className='team-detail ml-1 sm:ml-3 text-sm sm:text-base break-words'>{createTeam.teamName}</div>
                 </div>
-                <div className='w-full p-2'>
-                  <label htmlFor="name" className='font-bold text-base ml-3 mb-1 block'>Meme Token Address</label>
+                <div className='w-full px-1 py-2 sm:p-2'>
+                  <label htmlFor="name" className='font-bold text-sm sm:text-base ml-1 sm:ml-3 mb-1 block'>Meme Token Address</label>
                   <Input
                     value={createTeam.memeTokenAddress}
                     onChange={(e) => handleFormCreateAirdrop(e)}
@@ -129,28 +129,29 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     height={35}  
                   />
                   {
-                    !validAddress && <span className='text-red-500 text-sm ml-3'>enter a valid address</span>
+                    !validAddress && <span className='text-red-500 text-xs sm:text-sm ml-1 sm:ml-3'>enter a valid address</span>
                   }
-                  <div className='team-detail ml-3'>{createTeam.memeTokenAddress}</div>
+                  <div className='team-detail ml-1 sm:ml-3 text-sm sm:text-base break-all'>{createTeam.memeTokenAddress}</div>
                 </div>
-                <div className='w-full p-2'>
-                  <label htmlFor="name" className='font-bold text-base ml-3 mb-1 flex items-center'>
+                <div className='w-full px-1 py-2 sm:p-2'>
+                  <label htmlFor="name" className='font-bold text-sm sm:text-base ml-1 sm:ml-3 mb-1 flex items-center flex-wrap'>
                     Team Leader Address
-                    <span className='text-sm text-zinc-600'> (wallet Address)</span>
+                    <span className='text-xs sm:text-sm text-zinc-600 ml-1'> (wallet Address)</span>
                   </label>
-                  <div className='ml-3 text-zinc-400'>{ address }</div>
+                  <div className='ml-1 sm:ml-3 text-zinc-400 text-xs sm:text-base break-all'>{ address }</div>
                 </div>
               </form>
-              <div className='italic text-red-500 my-2'>
+              <div className='italic text-red-500 my-2 text-sm sm:text-base px-2'>
                 {
                   !formCompleted && 'All fields are required'
                 }
               </div>
-              <div className='w-full flex mt-4 justify-between'>
+              <div className='w-full flex flex-row mt-4 justify-between gap-2 px-1 sm:px-0'>
                 <Button
                   outline
                   onClick={() => {step === STEP_STATUS.INIT ?  handleCloseDialog() : setStep(STEP_STATUS.INIT)}}
-                  width={80}
+                  width={140}
+                  className="flex-1 sm:flex-none sm:w-[140px]"
                 >
                   {
                     step === STEP_STATUS.INIT ? 'Cancel' : 'Back'
@@ -161,6 +162,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                   variant='secondary'
                   outline
                   width={140}
+                  className="flex-1 sm:flex-none sm:w-[140px]"
                 >
                   {
                     step === STEP_STATUS.INIT ? 'Add Team' : 'Create Team'

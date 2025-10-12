@@ -14,62 +14,224 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "Administrable",
+      name: "IERC1155Errors",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Administrable__factory>;
+    ): Promise<Contracts.IERC1155Errors__factory>;
+    getContractFactory(
+      name: "IERC20Errors",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Errors__factory>;
+    getContractFactory(
+      name: "IERC721Errors",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721Errors__factory>;
+    getContractFactory(
+      name: "ERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20__factory>;
+    getContractFactory(
+      name: "IERC20Metadata",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Metadata__factory>;
     getContractFactory(
       name: "IERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
-      name: "TeamsManager",
+      name: "ReentrancyGuard",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.TeamsManager__factory>;
+    ): Promise<Contracts.ReentrancyGuard__factory>;
+    getContractFactory(
+      name: "Administrable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Administrable__factory>;
+    getContractFactory(
+      name: "AdvancedGovernance",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AdvancedGovernance__factory>;
+    getContractFactory(
+      name: "MockERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MockERC20__factory>;
+    getContractFactory(
+      name: "IMemeToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMemeToken__factory>;
+    getContractFactory(
+      name: "TeamsManagerCore",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TeamsManagerCore__factory>;
 
     getContractAt(
-      name: "Administrable",
+      name: "IERC1155Errors",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.Administrable>;
+    ): Promise<Contracts.IERC1155Errors>;
+    getContractAt(
+      name: "IERC20Errors",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Errors>;
+    getContractAt(
+      name: "IERC721Errors",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Errors>;
+    getContractAt(
+      name: "ERC20",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20>;
+    getContractAt(
+      name: "IERC20Metadata",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Metadata>;
     getContractAt(
       name: "IERC20",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
-      name: "TeamsManager",
+      name: "ReentrancyGuard",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.TeamsManager>;
+    ): Promise<Contracts.ReentrancyGuard>;
+    getContractAt(
+      name: "Administrable",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Administrable>;
+    getContractAt(
+      name: "AdvancedGovernance",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AdvancedGovernance>;
+    getContractAt(
+      name: "MockERC20",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MockERC20>;
+    getContractAt(
+      name: "IMemeToken",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMemeToken>;
+    getContractAt(
+      name: "TeamsManagerCore",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TeamsManagerCore>;
 
     deployContract(
-      name: "Administrable",
+      name: "IERC1155Errors",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Administrable>;
+    ): Promise<Contracts.IERC1155Errors>;
+    deployContract(
+      name: "IERC20Errors",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC20Errors>;
+    deployContract(
+      name: "IERC721Errors",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721Errors>;
+    deployContract(
+      name: "ERC20",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20>;
+    deployContract(
+      name: "IERC20Metadata",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC20Metadata>;
     deployContract(
       name: "IERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
-      name: "TeamsManager",
+      name: "ReentrancyGuard",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.TeamsManager>;
-
+    ): Promise<Contracts.ReentrancyGuard>;
     deployContract(
       name: "Administrable",
-      args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Administrable>;
+    deployContract(
+      name: "AdvancedGovernance",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AdvancedGovernance>;
+    deployContract(
+      name: "MockERC20",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MockERC20>;
+    deployContract(
+      name: "IMemeToken",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMemeToken>;
+    deployContract(
+      name: "TeamsManagerCore",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TeamsManagerCore>;
+
+    deployContract(
+      name: "IERC1155Errors",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC1155Errors>;
+    deployContract(
+      name: "IERC20Errors",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC20Errors>;
+    deployContract(
+      name: "IERC721Errors",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721Errors>;
+    deployContract(
+      name: "ERC20",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20>;
+    deployContract(
+      name: "IERC20Metadata",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC20Metadata>;
     deployContract(
       name: "IERC20",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
-      name: "TeamsManager",
+      name: "ReentrancyGuard",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.TeamsManager>;
+    ): Promise<Contracts.ReentrancyGuard>;
+    deployContract(
+      name: "Administrable",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Administrable>;
+    deployContract(
+      name: "AdvancedGovernance",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AdvancedGovernance>;
+    deployContract(
+      name: "MockERC20",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MockERC20>;
+    deployContract(
+      name: "IMemeToken",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMemeToken>;
+    deployContract(
+      name: "TeamsManagerCore",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.TeamsManagerCore>;
 
     // default types
     getContractFactory(
