@@ -499,4 +499,4 @@ Optional features not included (can be separate PRs):
 
 ---
 
-**Submitted as part of Rootstock Hacktivator Level 4 - Admin Dashboard Implementation**
+**Submitted as part of Rootstock Hacktivator 2/3 - Admin Dashboard Implementation**
