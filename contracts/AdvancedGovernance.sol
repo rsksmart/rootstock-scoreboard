@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-// CORRECTED IMPORT PATHS FOR OPENZEPPELIN 4.9
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// CORRECTED IMPORT PATHS FOR OPENZEPPELIN 5.1
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -685,9 +685,9 @@ contract AdvancedGovernance is ReentrancyGuard {
         if (actionId >= nextActionId || actionId == 0) return false;
 
         AdminAction storage action = pendingActions[actionId];
-        return !action.executed && 
-               !action.cancelled && 
+        return !action.executed &&
+               !action.cancelled &&
                block.timestamp <= action.deadline &&
                action.confirmations >= action.requiredConfirmations;
     }
-}s
+}

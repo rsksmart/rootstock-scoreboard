@@ -19,6 +19,7 @@
 # misc
 .DS_Store
 *.pem
+resources/
 
 # debug
 npm-debug.log*
@@ -42,6 +43,7 @@ node_modules
 # Hardhat files
 /cache
 /artifacts
+deployment.json
 
 # TypeChain files
 /typechain

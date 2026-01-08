@@ -25,7 +25,7 @@ function Input({
   }: props
   ) {
 
-  const baseStyles = 'bg-black flex-1 h-[36px] rounded-full px-3 w-full';
+  const baseStyles = 'bg-black flex-1 h-[36px] rounded-lg px-3 w-full';
   const outlineStyles = border ? 'border' : '';
 
   return (

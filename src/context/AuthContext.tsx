@@ -9,6 +9,7 @@ import React, {
   ReactNode,
   useCallback,
 } from 'react'
+import { AdminRole, AdminInfo, VotingStatus } from '@/types/admin'
 
 interface AuthContextType {
   provider: ethers.BrowserProvider | undefined
@@ -30,6 +31,23 @@ interface AuthContextType {
   setContract: React.Dispatch<React.SetStateAction<ethers.Contract| undefined>>
   permissions: boolean
   setPermissions: React.Dispatch<React.SetStateAction<boolean>>
+
+  // Admin role management
+  userRole: AdminRole
+  setUserRole: React.Dispatch<React.SetStateAction<AdminRole>>
+  isAdmin: boolean
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>
+  adminInfo: AdminInfo | null
+  setAdminInfo: React.Dispatch<React.SetStateAction<AdminInfo | null>>
+  roleLoading: boolean
+  setRoleLoading: React.Dispatch<React.SetStateAction<boolean>>
+  hasRole: (requiredRole: AdminRole) => boolean
+
+  // Voting status management
+  votingStatus: VotingStatus | null
+  setVotingStatus: React.Dispatch<React.SetStateAction<VotingStatus | null>>
+  votingStatusLoading: boolean
+  setVotingStatusLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -50,10 +68,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     undefined
   )
 
+  // Admin role state
+  const [userRole, setUserRole] = useState<AdminRole>(AdminRole.NONE);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
+  const [roleLoading, setRoleLoading] = useState<boolean>(false);
+
+  // Voting status state
+  const [votingStatus, setVotingStatus] = useState<VotingStatus | null>(null);
+  const [votingStatusLoading, setVotingStatusLoading] = useState<boolean>(false);
+
+  // Check if user has required role
+  const hasRole = useCallback((requiredRole: AdminRole): boolean => {
+    return isAdmin && userRole >= requiredRole;
+  }, [isAdmin, userRole]);
+
   const logout = useCallback(() => {
     setProvider(undefined);
     setAddress('');
     setTx(undefined);
+    // Reset admin state on logout
+    setUserRole(AdminRole.NONE);
+    setIsAdmin(false);
+    setAdminInfo(null);
+    setVotingStatus(null);
   }, [])
 
   return (
@@ -77,7 +115,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         contract,
         setContract,
         permissions,
-        setPermissions
+        setPermissions,
+        // Admin role management
+        userRole,
+        setUserRole,
+        isAdmin,
+        setIsAdmin,
+        adminInfo,
+        setAdminInfo,
+        roleLoading,
+        setRoleLoading,
+        hasRole,
+        // Voting status management
+        votingStatus,
+        setVotingStatus,
+        votingStatusLoading,
+        setVotingStatusLoading
       }}
     >
       {children}
