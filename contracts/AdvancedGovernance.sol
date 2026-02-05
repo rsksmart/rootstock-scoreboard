@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 // CORRECTED IMPORT PATHS FOR OPENZEPPELIN 4.9
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -114,19 +114,19 @@ contract AdvancedGovernance is ReentrancyGuard {
     // ============ MODIFIERS ============
 
     modifier onlyAdmins() {
-        require(adminInfo[msg.sender].role != AdminRole.NONE && adminInfo[msg.sender].isActive, 
+        require(adminInfo[msg.sender].role != AdminRole.NONE && adminInfo[msg.sender].isActive,
                 "Not an active admin");
         _;
     }
 
     modifier onlyRole(AdminRole minRole) {
-        require(adminInfo[msg.sender].role >= minRole && adminInfo[msg.sender].isActive, 
+        require(adminInfo[msg.sender].role >= minRole && adminInfo[msg.sender].isActive,
                 "Insufficient admin privileges");
         _;
     }
 
     modifier onlySuperAdmin() {
-        require(adminInfo[msg.sender].role == AdminRole.SUPER_ADMIN && adminInfo[msg.sender].isActive, 
+        require(adminInfo[msg.sender].role == AdminRole.SUPER_ADMIN && adminInfo[msg.sender].isActive,
                 "Only super admin can perform this action");
         _;
     }
@@ -190,7 +190,7 @@ contract AdvancedGovernance is ReentrancyGuard {
         rolePermissions[AdminRole.TEAM_MANAGER][bytes4(keccak256("removeTeam(string)"))] = true;
         rolePermissions[AdminRole.TEAM_MANAGER][bytes4(keccak256("updateTeamToken(string,address)"))] = true;
 
-        // VOTE_ADMIN permissions  
+        // VOTE_ADMIN permissions
         rolePermissions[AdminRole.VOTE_ADMIN][bytes4(keccak256("setReadyToVote(uint256)"))] = true;
         rolePermissions[AdminRole.VOTE_ADMIN][bytes4(keccak256("disableVoting()"))] = true;
         rolePermissions[AdminRole.VOTE_ADMIN][bytes4(keccak256("setVotingToken(address)"))] = true;
@@ -210,8 +210,8 @@ contract AdvancedGovernance is ReentrancyGuard {
      * @dev Propose adding a new admin
      */
     function proposeAddAdmin(
-        address newAdmin, 
-        AdminRole role, 
+        address newAdmin,
+        AdminRole role,
         string calldata reason
     ) external onlyRole(AdminRole.SUPER_ADMIN) notInEmergency {
         require(newAdmin != address(0), "Invalid admin address");
@@ -234,7 +234,7 @@ contract AdvancedGovernance is ReentrancyGuard {
      * @dev Propose removing an admin
      */
     function proposeRemoveAdmin(
-        address admin, 
+        address admin,
         string calldata reason
     ) external onlyRole(AdminRole.SUPER_ADMIN) notInEmergency {
         require(adminInfo[admin].role != AdminRole.NONE, "Not an admin");
@@ -257,8 +257,8 @@ contract AdvancedGovernance is ReentrancyGuard {
      * @dev Propose changing an admin's role
      */
     function proposeRoleChange(
-        address admin, 
-        AdminRole newRole, 
+        address admin,
+        AdminRole newRole,
         string calldata reason
     ) external onlyRole(AdminRole.SUPER_ADMIN) notInEmergency {
         require(adminInfo[admin].role != AdminRole.NONE, "Not an admin");
@@ -406,7 +406,7 @@ contract AdvancedGovernance is ReentrancyGuard {
      * @dev Propose slashing an admin's stake
      */
     function proposeSlashAdmin(
-        address admin, 
+        address admin,
         string calldata reason
     ) external onlyRole(AdminRole.SUPER_ADMIN) {
         require(adminInfo[admin].role != AdminRole.NONE, "Not an admin");
@@ -685,9 +685,9 @@ contract AdvancedGovernance is ReentrancyGuard {
         if (actionId >= nextActionId || actionId == 0) return false;
 
         AdminAction storage action = pendingActions[actionId];
-        return !action.executed && 
-               !action.cancelled && 
+        return !action.executed &&
+               !action.cancelled &&
                block.timestamp <= action.deadline &&
                action.confirmations >= action.requiredConfirmations;
     }
-}s
+}

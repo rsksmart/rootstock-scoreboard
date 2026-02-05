@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Administrable.sol";
 
@@ -83,7 +83,7 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
     // ============ CORE VOTING FUNCTIONS ============
 
     function vote(
-        string memory teamName, 
+        string memory teamName,
         uint256 transferAmount
     ) external nonReentrant votingActive validTeam(teamName) {
         require(transferAmount >= minimumVoteAmount, "Vote amount too small");
@@ -93,7 +93,7 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
             "Total votes would exceed maximum per user"
         );
         require(
-            keccak256(abi.encodePacked(teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)), 
+            keccak256(abi.encodePacked(teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)),
             "Cannot vote for own team"
         );
 
@@ -113,8 +113,8 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
     // ============ TEAM MANAGEMENT ============
 
     function addTeam(
-        string memory teamName, 
-        address memeTokenAddress, 
+        string memory teamName,
+        address memeTokenAddress,
         address teamLeaderAddress
     ) external onlyRole(AdminRole.TEAM_MANAGER) notInEmergency {
         require(bytes(teamName).length > 0, "Team name cannot be empty");
