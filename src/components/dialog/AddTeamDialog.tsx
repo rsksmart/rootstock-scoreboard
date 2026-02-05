@@ -25,7 +25,7 @@ const CREATE_TEAM_STATE: ICreateTeam = {
 }
 
 function AddTeamDialog({ open, closeDialog }: props) {
-  const { isLoading, setIsLoading, addTeam, getTeams } = useManager();
+  const { isLoading, setIsLoading, addTeam, getTeams, contractErrorText } = useManager();
   const { address, teams } = useAuth();
   const [formCompleted, setFormCompleted] = useState<boolean>(true);
   const [validAddress, setValidAddress] = useState<boolean>(true);
@@ -174,6 +174,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
           createdTitle='Team was Created'
           onClose={() => handleReset()}
           btnError='try again'
+          errorText={contractErrorText}
         />
       </div>
     </BaseDialog>

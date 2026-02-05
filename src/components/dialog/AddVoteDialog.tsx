@@ -14,7 +14,7 @@ type props = {
   closeDialog: Function
 }
 function AddVoteDialog({ open, closeDialog }: props) {
-  const { isLoading, setIsLoading, addVote, getTeams } = useManager();
+  const { isLoading, setIsLoading, addVote, getTeams, contractErrorText } = useManager();
   const [amount, setAmount] = useState<number | undefined>(0);
   const [error, setError] = useState<string>('');
   const { team, tokenBalance, address } = useAuth();
@@ -111,6 +111,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
           createdTitle='Vote added'
           onClose={() => handleReset()}
           btnError='try again'
+          errorText={contractErrorText}
         />
       </div>
     </BaseDialog>
