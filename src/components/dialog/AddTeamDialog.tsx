@@ -72,7 +72,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
   }
 
   const createNewTeam = async () => {
-    const validAddress = ethers.isAddress(createTeam.memeTokenAddress);
+    const validAddress = ethers.isAddress(createTeam.memeTokenAddress.toLowerCase());
     setValidAddress(validAddress);
     setFormCompleted(areAllFieldsFilled());
     createTeam.teamLeaderAddress = address;
