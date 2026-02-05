@@ -2,7 +2,7 @@
 import { FETCH_STATUS, GOVERNANCE_TOKEN, TEAM_MANAGER_ADDRESS } from '@/constants'
 import { useAuth } from '@/context/AuthContext'
 import { ICreateTeam, ITeam } from '@/interface/ITeam'
-import { TeamsManager, TeamsManager__factory } from '@/typechain-types'
+import { TeamsManagerCore, TeamsManagerCore__factory } from '@/typechain-types'
 import { ABI_ERC20 } from '@/utils/Abi'
 import { ethers } from 'ethers'
 import { DecodedError, ErrorDecoder } from 'ethers-decode-error'
@@ -21,7 +21,7 @@ const useManager = () => {
 
   const [isLoading, setIsLoading] = useState(FETCH_STATUS.INIT);
   const [contractErrorText, setErrorText] = useState<string>("");
-  const [teamManager, setTeamManager] = useState<TeamsManager>()
+  const [teamManager, setTeamManager] = useState<TeamsManagerCore>()
   const errorDecoder = ErrorDecoder.create();
   const {
     provider,
@@ -39,7 +39,7 @@ const useManager = () => {
     if (provider) {
       PROVIDER.current = await provider.getSigner()
     }
-    const teamManager = TeamsManager__factory.connect(
+    const teamManager = TeamsManagerCore__factory.connect(
       TEAM_MANAGER_ADDRESS!,
       PROVIDER.current
     )

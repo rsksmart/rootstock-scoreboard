@@ -3,11 +3,8 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BytesLike,
   FunctionFragment,
-  Result,
   Interface,
-  AddressLike,
   ContractRunner,
   ContractMethod,
   Listener,
@@ -17,40 +14,15 @@ import type {
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
-  TypedContractMethod,
-} from "./common";
+} from "../../../../common";
 
-export interface AdministrableInterface extends Interface {
-  getFunction(
-    nameOrSignature: "addAdmin" | "isAdmin" | "removeAdmin"
-  ): FunctionFragment;
+export interface IERC20ErrorsInterface extends Interface {}
 
-  encodeFunctionData(
-    functionFragment: "addAdmin",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isAdmin",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeAdmin",
-    values: [AddressLike]
-  ): string;
-
-  decodeFunctionResult(functionFragment: "addAdmin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isAdmin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeAdmin",
-    data: BytesLike
-  ): Result;
-}
-
-export interface Administrable extends BaseContract {
-  connect(runner?: ContractRunner | null): Administrable;
+export interface IERC20Errors extends BaseContract {
+  connect(runner?: ContractRunner | null): IERC20Errors;
   waitForDeployment(): Promise<this>;
 
-  interface: AdministrableInterface;
+  interface: IERC20ErrorsInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -89,25 +61,9 @@ export interface Administrable extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  addAdmin: TypedContractMethod<[_newAdmin: AddressLike], [void], "nonpayable">;
-
-  isAdmin: TypedContractMethod<[_address: AddressLike], [boolean], "view">;
-
-  removeAdmin: TypedContractMethod<[_admin: AddressLike], [void], "nonpayable">;
-
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
-
-  getFunction(
-    nameOrSignature: "addAdmin"
-  ): TypedContractMethod<[_newAdmin: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "isAdmin"
-  ): TypedContractMethod<[_address: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "removeAdmin"
-  ): TypedContractMethod<[_admin: AddressLike], [void], "nonpayable">;
 
   filters: {};
 }
