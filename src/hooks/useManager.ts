@@ -129,7 +129,7 @@ const useManager = () => {
       setIsLoading(FETCH_STATUS.WAIT_WALLET)
       // await new Promise((resolve, reject) => setTimeout(() => resolve(''), 3000));
       console.log('teamManager: ', teamManager);
-      const response = await teamManager?.addTeam(teamName, memeTokenAddress, teamLeaderAddress!);
+      const response = await teamManager?.addTeam(teamName, memeTokenAddress.toLowerCase(), teamLeaderAddress!);
       setIsLoading(FETCH_STATUS.WAIT_TX);
       setTx(response);
       await response?.wait();
