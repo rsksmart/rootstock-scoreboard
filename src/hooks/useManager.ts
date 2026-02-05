@@ -142,12 +142,33 @@ const useManager = () => {
     }
   }
 
+  const kickStartVoting = async (durationInSeconds: string | number) => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const duration = BigInt(durationInSeconds);
+      const response = await teamManager?.setReadyToVote(duration);
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+      toast.success("Voting period has officially started!");
+      return true;
+    } catch (error) {
+      console.error("error: ", error);
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      setErrorText(decodedError.reason || "Failed to start voting");
+      setIsLoading(FETCH_STATUS.ERROR);
+      return false;
+    }
+  };
+
   return {
     addVote,
     addTeam,
     getTeams,
     isLoading,
     setIsLoading,
+    kickStartVoting
   }
 }
 
