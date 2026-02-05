@@ -5,7 +5,9 @@ import { ICreateTeam, ITeam } from '@/interface/ITeam'
 import { TeamsManager, TeamsManager__factory } from '@/typechain-types'
 import { ABI_ERC20 } from '@/utils/Abi'
 import { ethers } from 'ethers'
+import { DecodedError, ErrorDecoder } from 'ethers-decode-error'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'react-toastify'
 
 export const DEFAULT_ALLOWANCE = ethers.MaxUint256;
 
@@ -18,7 +20,9 @@ const useManager = () => {
   )
 
   const [isLoading, setIsLoading] = useState(FETCH_STATUS.INIT);
+  const [contractErrorText, setErrorText] = useState<string>("");
   const [teamManager, setTeamManager] = useState<TeamsManager>()
+  const errorDecoder = ErrorDecoder.create();
   const {
     provider,
     address,
@@ -39,7 +43,7 @@ const useManager = () => {
       TEAM_MANAGER_ADDRESS!,
       PROVIDER.current
     )
-    
+
     setTeamManager(teamManager)
     return teamManager
   }, [provider]);
@@ -64,7 +68,7 @@ const useManager = () => {
       setTeamLoading(true);
       const teamManager = await initializeProvider()
       const items = await teamManager?.getTeamNames();
-      const teamsDetail:ITeam[] = []; 
+      const teamsDetail:ITeam[] = [];
       for (const team in items) {
         const detail = await teamManager?.getTeamInfo(items[team]);
         const score = await teamManager.getScore(items[team]);
@@ -81,7 +85,9 @@ const useManager = () => {
       setTeams(teamsDetail);
       setTeamLoading(false);
     } catch (error) {
-      console.log('error: ', error);
+      console.error('error: ', error);
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      toast.error(decodedError.reason);
     }
   }, [initializeProvider, setTeams, setTeamLoading, address, provider, setContract, setTokenBalance]);
 
@@ -109,7 +115,9 @@ const useManager = () => {
       await response?.wait()
       setIsLoading(FETCH_STATUS.COMPLETED)
     } catch (error) {
-      console.log('error: ', error)
+      console.error('error: ', error)
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      setErrorText(decodedError.reason || "Failed to add vote!");
       setIsLoading(FETCH_STATUS.ERROR)
     }
   }
@@ -127,7 +135,9 @@ const useManager = () => {
       await response?.wait();
       setIsLoading(FETCH_STATUS.COMPLETED)
     } catch (error) {
-      console.log('error: ', error)
+      console.error('error: ', error)
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      setErrorText(decodedError.reason || "Failed to add team!");
       setIsLoading(FETCH_STATUS.ERROR)
     }
   }
