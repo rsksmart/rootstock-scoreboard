@@ -3,8 +3,8 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "AIrdrop",
-  description: "AirDrop Voting",
+  title: "Rootstock Scoreboard",
+  description: "Rootstock Scoreboard allows users to create teams and vote using governance tokens (ERC20) with advanced role-based administration",
 };
 
 export default function RootLayout({

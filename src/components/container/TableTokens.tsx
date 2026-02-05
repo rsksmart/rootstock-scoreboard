@@ -1,15 +1,34 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AddVoteDialog from '../dialog/AddVoteDialog';
-import Button from '../common/Button';
 import { useAuth } from '@/context/AuthContext';
-import { PINATA_URL } from '@/constants';
-import CopyIcon from '../icons/CopyIcon';
-import CopyContent from './CopyContent';
 import { ITeam } from '@/interface/ITeam';
+import useManager from '@/hooks/useManager';
+import { TeamRowComp } from './Team';
 
 function TableTokens() {
   const [dialog, setDialog] = useState<boolean>(false);
   const { teams, setTeam } = useAuth();
+  const { getVotingStatus } = useManager();
+  const [isVotingActive, setIsVotingActive] = useState(false);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const status = await getVotingStatus();
+
+      if (status) {
+        const now = Math.floor(Date.now() / 1000);
+
+        const isActuallyActive =
+          status.isActive && (status.endTime === 0 || status.endTime > now);
+
+        setIsVotingActive((prev) =>
+          prev !== isActuallyActive ? isActuallyActive : prev
+        );
+      }
+    };
+    const interval = setInterval(fetchStatus, 5000);
+    return () => clearInterval(interval);
+  }, [getVotingStatus, teams]);
 
   const teamsFiltered = () => {
     const newTeams = teams?.sort((a, b) => b.score! - a.score!);
@@ -23,7 +42,7 @@ function TableTokens() {
   }
 
   return (
-    <> 
+    <>
       {
         teams?.length === 0 ?
         <div className='w-full flex justify-center mt-10'>
@@ -45,36 +64,15 @@ function TableTokens() {
           <tbody>
             {
               teamsFiltered()?.map((team, i) => (
-                <tr key={i} className='text-center h-14 pt-3 border-spacing-3 border-b border-zinc-800 hover:bg-zinc-900'>
-                  <td>
-                    <div className='flex justify-center'>
-                      <img src={`${PINATA_URL}${team.uri}`} alt="" className='w-10 h-10 rounded-full' />
-                    </div>
-                  </td>
-                  <td>{ team.teamName }</td>
-                  <td>{ team.symbol }</td>
-                  <td>
-                    <CopyContent address={team.leaderAddress} />
-                  </td>
-                  <td>
-                    <CopyContent address={team.memeTokenAddress} />
-                  </td>
-                  <td>
-                    <span className={`${(i === 0 && team.score) ? 'text-custom-lime font-semibold' : ''}`}>{team.score}</span>
-                  </td>
-                  <td>
-                    <div className='flex justify-center'>
-                      <Button
-                        variant='secondary'
-                        onClick={() => { setDialog(true); setTeam(team) }}
-                        className=''
-                        width={80}
-                      >
-                        Vote
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                <TeamRowComp
+                key={i}
+                team={team}
+                {...team}
+                i={i}
+                setDialog={setDialog}
+                setTeam={setTeam}
+                isVotingActive={isVotingActive}
+              />
               ))
             }
           </tbody>
