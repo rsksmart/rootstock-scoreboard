@@ -46,10 +46,10 @@ function AddTeamDialog({ open, closeDialog }: props) {
     setFormCompleted(true);
     init();
   }
-  const handleReset = () => {
+  const handleReset = async () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
       closeDialog();
-      getTeams();
+      await getTeams();
     }
     init();
   }
@@ -82,14 +82,14 @@ function AddTeamDialog({ open, closeDialog }: props) {
       return
     }
     if (areAllFieldsFilled() && step === STEP_STATUS.CONFIRM) {
-      addTeam(createTeam);
+      await addTeam(createTeam);
     }
   }
   return (
     <BaseDialog open={open} closeDialog={handleCloseDialog} className={`w-[490px] h-[440px] bg-black border border-zinc-700 transition-all duration-200`}>
       <div className='w-full h-full flex flex-col'>
         {
-          !address && 
+          !address &&
           <div className='absolute -left-0 w-full h-[90%] mt-1 flex justify-center items-center'>
             <div className='absolute w-full h-full bg-black opacity-80 z-10'></div>
             <div className='relative z-20'>
@@ -114,7 +114,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     id='teamName'
                     name='teamName'
                     placeholder='Team name ...'
-                    height={35}  
+                    height={35}
                   />
                   <div className='team-detail ml-3'>{createTeam.teamName}</div>
                 </div>
@@ -126,7 +126,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                     id='memeTokenAddress'
                     name='memeTokenAddress'
                     placeholder='0x0123..'
-                    height={35}  
+                    height={35}
                   />
                   {
                     !validAddress && <span className='text-red-500 text-sm ml-3'>enter a valid address</span>

@@ -25,19 +25,19 @@ function AddVoteDialog({ open, closeDialog }: props) {
     if (amount && tokenBalance && amount! <= tokenBalance) addVote(team?.teamName!, amount!);
   }
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = async () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
-      getTeams();
+      await getTeams();
     }
     closeDialog();
     setIsLoading(FETCH_STATUS.INIT);
     setAmount(0);
     setError('');
   }
-  const handleReset = () => {
+  const handleReset = async () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
       closeDialog();
-      getTeams();
+      await getTeams();
     }
     setIsLoading(FETCH_STATUS.INIT);
     setAmount(0);
@@ -47,7 +47,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
     <BaseDialog open={open} closeDialog={handleCloseDialog} className='w-[490px] h-[420px]'>
       <div className='w-full h-full flex flex-col'>
       {
-          !address && 
+          !address &&
           <div className='absolute -left-0 w-full h-[90%] mt-1 flex justify-center items-center'>
             <div className='absolute w-full h-full bg-black opacity-80 z-10'></div>
             <div className='relative z-20'>
@@ -83,7 +83,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
                     id='amount'
                     name="amoun"
                     placeholder='Amoun to vote'
-                    height={35}  
+                    height={35}
                   />
                   <div className='ml-3 text-red-600 p-1 text-sm'>{ error }</div>
                 </div>
