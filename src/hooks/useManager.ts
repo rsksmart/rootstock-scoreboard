@@ -205,15 +205,44 @@ const useManager = () => {
     }
   }, [address, initializeProvider]);
 
+  const assignAdminRole = async (targetAddress: string, role: AdminRole) => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+
+      if (!ethers.isAddress(targetAddress)) {
+        toast.error("Invalid wallet address!");
+        return false;
+      }
+
+      const response = await teamManager?.addAdmin(targetAddress, role);
+
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+      await response?.wait();
+
+      setIsLoading(FETCH_STATUS.COMPLETED);
+      return true;
+    } catch (error: any) {
+      console.error("Error assigning role:", error);
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+
+      setErrorText(decodedError.reason || "Failed to assign role");
+      setIsLoading(FETCH_STATUS.ERROR);
+      return false;
+    }
+  };
+
   return {
     addVote,
     addTeam,
     getTeams,
     isLoading,
     setIsLoading,
+    contractErrorText,
     kickStartVoting,
     getVotingStatus,
-    checkAdminPermissions
+    checkAdminPermissions,
+    assignAdminRole
   }
 }
 
