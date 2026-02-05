@@ -1,5 +1,5 @@
 'use client'
-import { FETCH_STATUS, GOVERNANCE_TOKEN, TEAM_MANAGER_ADDRESS } from '@/constants'
+import { AdminRole, FETCH_STATUS, GOVERNANCE_TOKEN, TEAM_MANAGER_ADDRESS } from '@/constants'
 import { useAuth } from '@/context/AuthContext'
 import { ICreateTeam, ITeam } from '@/interface/ITeam'
 import { TeamsManagerCore, TeamsManagerCore__factory } from '@/typechain-types'
@@ -162,13 +162,58 @@ const useManager = () => {
     }
   };
 
+  const getVotingStatus = useCallback(async () => {
+    try {
+      const manager = await initializeProvider();
+      if (!manager) return;
+
+      const status = await manager.getVotingStatus();
+
+      const formattedStatus = {
+        isActive: status[0],
+        startTime: Number(status[1]),
+        endTime: Number(status[2]),
+        totalVotesCount: ethers.formatEther(status[3]),
+        votingToken: status[4],
+      };
+      return formattedStatus;
+    } catch (error) {
+      console.error("Error fetching voting status:", error);
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      toast.error(decodedError.reason || "Failed to fetch voting status");
+    }
+  }, [initializeProvider]);
+
+  const checkAdminPermissions = useCallback(async () => {
+    const manager = await initializeProvider();
+    if (!address || !manager)
+      return { isAuthorized: false, role: AdminRole.NONE };
+
+    try {
+      const roleValue = await manager.getAdminRole(address);
+
+      const role = Number(roleValue) as AdminRole;
+
+      const isAuthorized =
+        role === AdminRole.VOTE_ADMIN || role === AdminRole.SUPER_ADMIN;
+      return { isAuthorized, role };
+    } catch (error) {
+      console.error("Error checking permissions:", error);
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      toast.error(decodedError.reason || "Failed to fetch User permissions");
+      return { isAuthorized: false, role: AdminRole.NONE };
+    }
+  }, [address, initializeProvider]);
+
   return {
     addVote,
     addTeam,
     getTeams,
     isLoading,
     setIsLoading,
-    kickStartVoting
+    kickStartVoting,
+    getVotingStatus,
+    checkAdminPermissions
   }
 }
 
