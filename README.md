@@ -6,6 +6,21 @@
 
 This project is a voting dashboard built using Next.js and integrated with Rootstock Network (EVM compatible smart contracts). It allows users to create teams and vote using governance tokens (ERC20) with advanced role-based administration. The voting process is controlled by the `TeamsManagerCore` smart contract, which manages the creation of teams and tracks the votes.
 
+## Table of Contents
+* [Features](#features)
+    * [Core Voting Features](#core-voting-features)
+    * [Advanced Role-Based Administration](#advanced-role-based-administration)
+* [Smart Contract: TeamsManagerCore](#smart-contract-teamsmanagercore)
+    * [Main Functions](#main-functions)
+* [Environment Variables](#environment-variables)
+* [Prerequisites](#prerequisites)
+* [Getting Started](#getting-started)
+* [Network Configuration](#-network-configuration)
+* [Smart Contract Deployment](#smart-contract-deployment)
+    * [Deployment Steps](#deployment-steps)
+* [Testing](#testing)
+* [Disclaimer](#disclaimer)
+
 ## Features
 
 ### Core Voting Features
@@ -25,7 +40,7 @@ The system implements a sophisticated **5-tier role hierarchy** for secure gover
 #### Admin Role Hierarchy
 ```
 SUPER_ADMIN (4)     → Full system control & oversight
-├── RECOVERY_ADMIN (3)  → Emergency functions & crisis management  
+├── RECOVERY_ADMIN (3)  → Emergency functions & crisis management
 ├── VOTE_ADMIN (2)      → Voting system configuration & management
 └── TEAM_MANAGER (1)    → Team creation & team lifecycle management
     └── NONE (0)        → Regular users with no admin privileges
@@ -116,7 +131,7 @@ NEXT_PUBLIC_GOVERNANCE_TOKEN=<Governance token contract address>
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/rsksmart/rootstock-scoreboard.git
    ```
 
 2. **Install the dependencies:**
@@ -133,6 +148,18 @@ NEXT_PUBLIC_GOVERNANCE_TOKEN=<Governance token contract address>
 
 5. **Open http://localhost:3000 to view the dashboard.**
 
+## 🌐 Network Configuration
+
+| Property            | Value                                                             |
+| :------------------ | :---------------------------------------------------------------- |
+| **Network Name**    | Rootstock Testnet                                                 |
+| **RPC URL**         | `https://public-node.testnet.rsk.co`                              |
+| **Chain ID**        | 31                                                                |
+| **Currency Symbol** | tRBTC                                                             |
+| **Block Explorer**  | [Rootstock Blockscout](https://rootstock-testnet.blockscout.com/) |
+
+> **Faucet:** Need testnet funds? Visit the [Rootstock Faucet](https://faucet.rootstock.io/) to get tRBTC.
+
 ## Smart Contract Deployment
 
 The `TeamsManagerCore` contract should be deployed to the Rootstock network, and its address should be provided in the `NEXT_PUBLIC_TEAM_MANAGER_ADDRESS` environment variable. The contract source code can be found in the `contracts` directory.
@@ -148,6 +175,12 @@ The `TeamsManagerCore` contract should be deployed to the Rootstock network, and
    ```bash
    npx hardhat test
    ```
+3. **Deploy & Verify:**
+   You can now deploy using the custom `deploy-scoreboard` task. This task handles the deployment of the Mock token (if needed), the Core contract, and triggers automatic verification on the Rootstock Explorer.
+   ```bash
+   npx hardhat deploy-scoreboard --network rskTestnet
+   ```
+
 ## Testing
 
 The project includes comprehensive test coverage with 90+ test cases across all contracts:
