@@ -3,7 +3,21 @@ import { task } from "hardhat/config";
 task("deploy-scoreboard", "Deploys and verifies the governance scoreboard")
   .addOptionalParam("token", "The address of an existing ERC20 token")
   .setAction(async (taskArgs, hre) => {
+    const requiredEnv = [
+      "NEXT_PUBLIC_EXPLORER",
+      "NEXT_PUBLIC_RPC_URL",
+      "PRIVATE_KEY"
+    ];
+    for (const env of requiredEnv) {
+      if (!process.env[env]) {
+        throw new Error(`❌ Missing environment variable: ${env}`);
+      }
+    }
+
     const [deployer] = await hre.ethers.getSigners();
+    if (!deployer) {
+      throw new Error("❌ No deployer account found. Check your PRIVATE_KEY and network config.");
+    }
     console.log(`Contract Deployer: ${deployer.address}`);
 
     let tokenAddr = taskArgs.token;
