@@ -25,7 +25,7 @@ interface IMemeToken {
  * @title Core TeamsManager Contract
  * @dev Essential team management and voting functionality only
  */
-contract TeamsManagerCore is ReentrancyGuard, Administrable {
+contract TeamsManagerCore is Administrable {
 
     // ============ STATE VARIABLES ============
 

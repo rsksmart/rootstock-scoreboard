@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-// CORRECTED IMPORT PATHS FOR OPENZEPPELIN 4.9
+// CORRECTED IMPORT PATHS FOR OPENZEPPELIN
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
