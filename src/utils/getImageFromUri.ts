@@ -1,5 +1,15 @@
 import { PINATA_URL } from "@/constants";
 
+const isSafeUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    // Only allow standard web protocols
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+};
+
 export async function getImageFromURI(baseURI: string): Promise<string | null> {
   const PINATA_GATEWAY = `${PINATA_URL}/ipfs/`;
   try {
@@ -9,6 +19,8 @@ export async function getImageFromURI(baseURI: string): Promise<string | null> {
     } else if (!metadataUrl.startsWith("http")) {
       metadataUrl = `${PINATA_GATEWAY}${metadataUrl}`;
     }
+
+    if (!isSafeUrl(metadataUrl)) return null;
 
     const res = await fetch(metadataUrl);
     if (!res.ok) return null;
@@ -22,6 +34,11 @@ export async function getImageFromURI(baseURI: string): Promise<string | null> {
       imageIpfs = imageIpfs.replace("ipfs://", PINATA_GATEWAY);
     } else if (!imageIpfs.startsWith("http")) {
       imageIpfs = `${PINATA_GATEWAY}${imageIpfs}`;
+    }
+
+    if (!isSafeUrl(imageIpfs)) {
+      console.warn("Blocked potentially malicious image URI:", imageIpfs);
+      return null;
     }
 
     return imageIpfs;
