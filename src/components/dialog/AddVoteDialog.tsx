@@ -6,7 +6,6 @@ import ContentDialog from './ContentDialog'
 import { useAuth } from '@/context/AuthContext'
 import useManager from '@/hooks/useManager'
 import { FETCH_STATUS } from '@/constants'
-import { ITeam } from '@/interface/ITeam'
 import ConnectWalletButton from '../navigation/ConnectWalletButton'
 
 type props = {
@@ -19,10 +18,21 @@ function AddVoteDialog({ open, closeDialog }: props) {
   const [error, setError] = useState<string>('');
   const { team, tokenBalance, address } = useAuth();
 
-  const handleVote = () => {
-    if (!amount) setError('Amount required');
-    if (!tokenBalance || amount! > tokenBalance) setError(`you don't have enough balance`);
-    if (amount && tokenBalance && amount! <= tokenBalance) addVote(team?.teamName!, amount!);
+  const handleVote = async() => {
+    setError('');
+    if (!amount || amount <= 0) {
+      setError('Amount required');
+      return;
+    }
+    if (!tokenBalance || amount > tokenBalance) {
+      setError(`you don't have enough balance`);
+      return;
+    };
+    if (!team?.teamName) {
+      setError('No team selected');
+      return;
+    }
+    await addVote(team.teamName, amount);
   }
 
   const handleCloseDialog = async () => {
