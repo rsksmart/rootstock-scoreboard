@@ -211,8 +211,9 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
         emit SystemReset(msg.sender);
     }
 
-    function emergencyWithdraw(address token, address to, uint256 amount) external onlyRole(AdminRole.RECOVERY_ADMIN) {
+    function emergencyWithdraw(address token, address to, uint256 amount) external nonReentrant onlyInEmergency onlyRole(AdminRole.RECOVERY_ADMIN) {
         require(to != address(0), "Invalid recipient");
+        require(token != address(0), "Invalid token");
         require(amount > 0, "Invalid amount");
         require(IERC20(token).transfer(to, amount), "Transfer failed");
     }

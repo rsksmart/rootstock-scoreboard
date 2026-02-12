@@ -387,7 +387,34 @@ describe("TeamsManagerCore - Essential Tests", function () {
       );
     });
 
-    it("Should allow RECOVERY_ADMIN to withdraw tokens", async function () {
+    it("Should not allow RECOVERY_ADMIN to withdraw tokens when contract is not in emergency mode", async function () {
+      const withdrawAmount = ethers.parseEther("500");
+      const initialBalance = await votingToken.balanceOf(admin1.address);
+
+      await expect(teamsManager
+        .connect(admin1)
+        .emergencyWithdraw(
+          await votingToken.getAddress(),
+          admin1.address,
+          withdrawAmount,
+        )).to.be.revertedWith("Emergency mode required");
+    });
+
+     it("Should trigger emergency mode successfully", async function () {
+      await expect(teamsManager.connect(admin1).triggerEmergency())
+        .to.emit(teamsManager, "EmergencyModeToggled")
+        .withArgs(true, admin1.address);
+
+      expect(await teamsManager.emergencyMode()).to.be.true;
+    });
+
+    it("Should allow RECOVERY_ADMIN to withdraw tokens only", async function () {
+        await expect(teamsManager.connect(admin1).triggerEmergency())
+        .to.emit(teamsManager, "EmergencyModeToggled")
+        .withArgs(true, admin1.address);
+
+      expect(await teamsManager.emergencyMode()).to.be.true;
+
       const withdrawAmount = ethers.parseEther("500");
       const initialBalance = await votingToken.balanceOf(admin1.address);
 
@@ -404,21 +431,15 @@ describe("TeamsManagerCore - Essential Tests", function () {
     });
 
     it("Should prevent non-RECOVERY_ADMIN from emergency withdrawal", async function () {
-      // Both should get "Insufficient admin privileges" due to onlyRole modifier behavior
-      await expect(
-        teamsManager
-          .connect(nonAdmin)
-          .emergencyWithdraw(
-            await votingToken.getAddress(),
-            nonAdmin.address,
-            ethers.parseEther("100"),
-          ),
-      ).to.be.revertedWith("Insufficient admin privileges");
-
-      // Change admin2 to VOTE_ADMIN (lower than RECOVERY_ADMIN) so they can't do emergency withdrawal
-      await teamsManager
+      // Try Change admin2 to VOTE_ADMIN (lower than RECOVERY_ADMIN) so they can't do emergency withdrawal
+      await expect(teamsManager
         .connect(owner)
-        .changeAdminRole(admin2.address, AdminRole.VOTE_ADMIN);
+        .changeAdminRole(admin2.address, AdminRole.VOTE_ADMIN));
+
+        // turn on emergency
+        await expect(teamsManager.connect(admin1).triggerEmergency())
+        .to.emit(teamsManager, "EmergencyModeToggled")
+        .withArgs(true, admin1.address);
 
       // Test with admin who doesn't have RECOVERY_ADMIN role
       await expect(
@@ -430,14 +451,17 @@ describe("TeamsManagerCore - Essential Tests", function () {
             ethers.parseEther("100"),
           ),
       ).to.be.revertedWith("Insufficient admin privileges");
-    });
 
-    it("Should trigger emergency mode", async function () {
-      await expect(teamsManager.connect(admin1).triggerEmergency())
-        .to.emit(teamsManager, "EmergencyModeToggled")
-        .withArgs(true, admin1.address);
-
-      expect(await teamsManager.emergencyMode()).to.be.true;
+       // test if nonAdmin can do emergency withdrawal
+      await expect(
+        teamsManager
+          .connect(nonAdmin)
+          .emergencyWithdraw(
+            await votingToken.getAddress(),
+            nonAdmin.address,
+            ethers.parseEther("100"),
+          ),
+      ).to.be.revertedWith("Insufficient admin privileges");
     });
   });
 
