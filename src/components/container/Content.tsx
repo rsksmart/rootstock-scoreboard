@@ -27,16 +27,22 @@ function Content() {
   }>({ isAuthorized: false, role: AdminRole.NONE });
 
   useEffect(() => {
+    let isCurrent = true;
     const init = async () => {
       await getTeams();
       let status = await getVotingStatus();
-      if (status) {
-        setVotingStatus(status);
+      if (isCurrent) {
+        if (status) {
+          setVotingStatus(status);
+        }
+        let result = await checkAdminPermissions();
+        setUserStatus(result);
       }
-      let result = await checkAdminPermissions();
-      setUserStatus(result);
     };
     init();
+    return () => {
+      isCurrent = false;
+    };
   }, [provider, getTeams,getVotingStatus, checkAdminPermissions]);
 
   return (
