@@ -114,7 +114,6 @@ function Content() {
       <AddAdminDialog
         open={isAdminModalOpen}
         closeDialog={() => setIsAdminModalOpen(false)}
-        onSuccess={() => {}}
       />
     </>
   )

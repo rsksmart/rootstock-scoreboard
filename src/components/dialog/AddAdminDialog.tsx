@@ -14,7 +14,7 @@ import { formatAddress } from "@/utils/formatAddress";
 type Props = {
   open: boolean;
   closeDialog: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 };
 
 function AddAdminDialog({ open, closeDialog, onSuccess }: Props) {
@@ -65,7 +65,7 @@ function AddAdminDialog({ open, closeDialog, onSuccess }: Props) {
 
     const isSuccess = await assignAdminRole(cleanAddress, role);
     if (!isSuccess) return;
-    onSuccess();
+    if (onSuccess) onSuccess();
   };
 
   return (
