@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import useManager from "@/hooks/useManager";
 import ConnectWalletButton from "../navigation/ConnectWalletButton";
 import { IVotingStatus } from "@/interface/IVotingStatus";
+import { toast } from "react-toastify";
 
 type Props = {
   open: boolean;
@@ -44,6 +45,11 @@ function KickstartVotingDialog({
   };
 
   const onKickstart = async () => {
+    if (!value || isNaN(value) || value <= 0) {
+      toast.error("Please enter a valid duration.");
+      return;
+    }
+
     const multipliers: { [key: string]: number } = {
       minutes: 60,
       hours: 3600,
@@ -51,8 +57,6 @@ function KickstartVotingDialog({
       weeks: 604800,
     };
     const totalSeconds = value * multipliers[unit];
-
-    console.log(totalSeconds);
 
     const isSuccess = await kickStartVoting(totalSeconds);
     if (!isSuccess) return;
