@@ -28,6 +28,7 @@ function AddAdminDialog({ open, closeDialog, onSuccess }: Props) {
   const handleCloseDialog = () => {
     setIsLoading(FETCH_STATUS.INIT);
     setTargetAddress("");
+    setRole(AdminRole.TEAM_MANAGER);
 
     closeDialog();
   };
