@@ -91,8 +91,8 @@ function AddVoteDialog({ open, closeDialog }: props) {
                     value={amount || ''}
                     onChange={(e) => setAmount(Number(e.target.value))}
                     id='amount'
-                    name="amoun"
-                    placeholder='Amoun to vote'
+                    name="amount"
+                    placeholder='Amount to vote'
                     height={35}
                   />
                   <div className='ml-3 text-red-600 p-1 text-sm'>{ error }</div>
