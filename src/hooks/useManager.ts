@@ -11,10 +11,12 @@ import { toast } from 'react-toastify'
 
 export const DEFAULT_ALLOWANCE = ethers.MaxUint256;
 
+const RPC_PROVIDER = new ethers.JsonRpcProvider(
+  process.env.NEXT_PUBLIC_RPC_URL
+);
+const errorDecoder = ErrorDecoder.create();
+
 const useManager = () => {
-  const RPC_PROVIDER = new ethers.JsonRpcProvider(
-    process.env.NEXT_PUBLIC_RPC_URL
-  )
   let PROVIDER = useRef<ethers.JsonRpcSigner | ethers.JsonRpcProvider>(
     RPC_PROVIDER
   )
@@ -22,7 +24,6 @@ const useManager = () => {
   const [isLoading, setIsLoading] = useState(FETCH_STATUS.INIT);
   const [contractErrorText, setErrorText] = useState<string>("");
   const [teamManager, setTeamManager] = useState<TeamsManagerCore>()
-  const errorDecoder = ErrorDecoder.create();
   const {
     provider,
     address,
@@ -36,6 +37,9 @@ const useManager = () => {
   } = useAuth()
 
   const initializeProvider = useCallback(async () => {
+    if (!provider) {
+       PROVIDER.current = RPC_PROVIDER;
+    }
     if (provider) {
       PROVIDER.current = await provider.getSigner()
     }
