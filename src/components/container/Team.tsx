@@ -29,7 +29,6 @@ export const TeamRowComp: React.FC<ITeamComp> = ({
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log(isVotingActive);
     const fetchImage = async () => {
       if (!uri) {
         setImageUrl(null);

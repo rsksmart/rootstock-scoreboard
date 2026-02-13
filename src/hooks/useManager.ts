@@ -60,7 +60,6 @@ const useManager = () => {
     if (address) {
       const signer = await provider?.getSigner();
       const tokenContract = new ethers.Contract(GOVERNANCE_TOKEN!, ABI_ERC20, signer);
-      console.log('tokenContract: ', tokenContract);
       setContract(tokenContract);
       const balance = await tokenContract.balanceOf(address);
       const decimals = 18;
@@ -97,17 +96,13 @@ const useManager = () => {
 
   const addVote = async (teamName: string, amount:number) => {
     const value = ethers.parseEther(amount.toString());
-    console.log('teamName: ', teamName);
-    console.log('value: ', value);
     try {
       setIsLoading(FETCH_STATUS.WAIT_WALLET)
       const allowance = await contract!.allowance(address, TEAM_MANAGER_ADDRESS);
       if (Number(ethers.formatEther(allowance)) < 1) {
         setPermissions(true);
         const approve = await contract!.approve(TEAM_MANAGER_ADDRESS, DEFAULT_ALLOWANCE);
-        console.log('approving: ', approve);
         const receipt = await provider?.waitForTransaction(approve.hash);
-        console.log('receipt: ', receipt);
         setPermissions(false);
       }
 
@@ -128,11 +123,9 @@ const useManager = () => {
 
   const addTeam = async (team: ICreateTeam) => {
     const { teamLeaderAddress, teamName, memeTokenAddress } = team;
-    console.log('team: ', team);
     try {
       setIsLoading(FETCH_STATUS.WAIT_WALLET)
       // await new Promise((resolve, reject) => setTimeout(() => resolve(''), 3000));
-      console.log('teamManager: ', teamManager);
       const response = await teamManager?.addTeam(teamName, memeTokenAddress.toLowerCase(), teamLeaderAddress!);
       setIsLoading(FETCH_STATUS.WAIT_TX);
       setTx(response);
