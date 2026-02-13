@@ -1,6 +1,3 @@
-import '@typechain/hardhat';
-import '@nomicfoundation/hardhat-ethers';
-import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-toolbox';
 import { HardhatUserConfig } from 'hardhat/types';
 import * as dotenv from "dotenv";
@@ -62,4 +59,4 @@ const config: HardhatUserConfig = {
 
 };
 
-module.exports = config;
+export default config;

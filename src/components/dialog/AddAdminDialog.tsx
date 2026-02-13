@@ -136,7 +136,8 @@ function AddAdminDialog({ open, closeDialog, onSuccess }: Props) {
               </div>
 
               <div className="w-full flex mt-10 justify-between px-2">
-                <Button outline onClick={handleCloseDialog} width={100}>
+                <Button outline onClick={handleCloseDialog} width={100}
+                  aria-label="Cancel and close dialog">
                   Cancel
                 </Button>
                 <Button

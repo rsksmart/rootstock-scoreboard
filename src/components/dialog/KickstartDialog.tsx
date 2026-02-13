@@ -132,7 +132,7 @@ function KickstartVotingDialog({
               </div>
 
               <div className="w-full flex mt-12 justify-between px-2">
-                <Button outline onClick={handleCloseDialog} width={100}>
+                <Button outline onClick={handleCloseDialog} width={100} ariaLabel="Cancel and close dialog">
                   Cancel
                 </Button>
                 <Button

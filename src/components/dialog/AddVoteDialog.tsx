@@ -102,6 +102,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
                 <Button
                   onClick={() => handleCloseDialog()}
                   width={80}
+                  ariaLabel='Cancel and close dialog'
                 >
                   Cancel
                 </Button>

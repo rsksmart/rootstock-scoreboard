@@ -2,6 +2,7 @@ import Content from "@/components/container/Content";
 import Footer from "@/components/footer/Footer";
 import Navbar from "@/components/navigation/Navbar";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
   return (

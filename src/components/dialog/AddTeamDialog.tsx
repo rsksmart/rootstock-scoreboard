@@ -150,6 +150,7 @@ function AddTeamDialog({ open, closeDialog }: props) {
                 <Button
                   outline
                   onClick={() => {step === STEP_STATUS.INIT ?  handleCloseDialog() : setStep(STEP_STATUS.INIT)}}
+                  ariaLabel='Cancel and close dialog'
                   width={80}
                 >
                   {
