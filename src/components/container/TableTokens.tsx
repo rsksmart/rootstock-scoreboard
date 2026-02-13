@@ -65,7 +65,7 @@ function TableTokens() {
             {
               teamsFiltered()?.map((team, i) => (
                 <TeamRowComp
-                key={i}
+                key={team.teamName}
                 team={team}
                 {...team}
                 i={i}
