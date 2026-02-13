@@ -34,12 +34,14 @@ function KickstartVotingDialog({
 
   // Local state for the form
   const [value, setValue] = useState<number>(1);
-  const [unit, setUnit] = useState<string>("hours");
+  const [unit, setUnit] = useState<string>("minutes");
 
   const handleCloseDialog = () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
       getVotingStatus(); // Refresh status if we finished
     }
+    setValue(1);
+    setUnit("minutes");
     setIsLoading(FETCH_STATUS.INIT);
     closeDialog();
   };
