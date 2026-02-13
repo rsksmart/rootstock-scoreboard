@@ -74,7 +74,7 @@ function Content() {
             </div>
           )}
           {userStatus.isAuthorized &&
-            userStatus.role == AdminRole.SUPER_ADMIN && (
+            userStatus.role === AdminRole.SUPER_ADMIN && (
               <div className="flex items-end">
                 <Button
                   onClick={() => setIsAdminModalOpen(true)}
