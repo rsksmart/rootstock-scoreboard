@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Administrable.sol";
 
@@ -25,7 +25,7 @@ interface IMemeToken {
  * @title Core TeamsManager Contract
  * @dev Essential team management and voting functionality only
  */
-contract TeamsManagerCore is ReentrancyGuard, Administrable {
+contract TeamsManagerCore is Administrable {
 
     // ============ STATE VARIABLES ============
 
@@ -83,7 +83,7 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
     // ============ CORE VOTING FUNCTIONS ============
 
     function vote(
-        string memory teamName, 
+        string memory teamName,
         uint256 transferAmount
     ) external nonReentrant votingActive validTeam(teamName) {
         require(transferAmount >= minimumVoteAmount, "Vote amount too small");
@@ -93,7 +93,7 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
             "Total votes would exceed maximum per user"
         );
         require(
-            keccak256(abi.encodePacked(teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)), 
+            keccak256(abi.encodePacked(teamLeaders[msg.sender])) != keccak256(abi.encodePacked(teamName)),
             "Cannot vote for own team"
         );
 
@@ -113,8 +113,8 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
     // ============ TEAM MANAGEMENT ============
 
     function addTeam(
-        string memory teamName, 
-        address memeTokenAddress, 
+        string memory teamName,
+        address memeTokenAddress,
         address teamLeaderAddress
     ) external onlyRole(AdminRole.TEAM_MANAGER) notInEmergency {
         require(bytes(teamName).length > 0, "Team name cannot be empty");
@@ -211,8 +211,9 @@ contract TeamsManagerCore is ReentrancyGuard, Administrable {
         emit SystemReset(msg.sender);
     }
 
-    function emergencyWithdraw(address token, address to, uint256 amount) external onlyRole(AdminRole.RECOVERY_ADMIN) {
+    function emergencyWithdraw(address token, address to, uint256 amount) external nonReentrant onlyInEmergency onlyRole(AdminRole.RECOVERY_ADMIN) {
         require(to != address(0), "Invalid recipient");
+        require(token != address(0), "Invalid token");
         require(amount > 0, "Invalid amount");
         require(IERC20(token).transfer(to, amount), "Transfer failed");
     }

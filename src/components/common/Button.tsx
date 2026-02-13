@@ -16,6 +16,8 @@ type ButtonProps = {
   onClick: React.MouseEventHandler<HTMLButtonElement> | undefined
   disabled?: boolean
   show?: boolean
+  type ?: "submit" | "reset" | "button"
+  ariaLabel ?: string
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -30,13 +32,15 @@ const Button: React.FC<ButtonProps> = ({
   width = 140,
   onClick,
   disabled = false,
-  show = true
+  show = true,
+  type = "button",
+  ariaLabel
 }) => {
   if (!show) return;
   const baseStyles = 'px-4 font-semibold focus:outline-none transition-colors flex justify-center items-center';
-  
+
   const sizeStyles = size === 'large' ? 'text-lg' : 'text-sm';
-  
+
   const variantStyles = {
     primary: 'bg-black text-white hover:bg-white hover:text-black',
     secondary: 'bg-white text-black hover:bg-black hover:text-white border hover-border-white',
@@ -60,6 +64,8 @@ const Button: React.FC<ButtonProps> = ({
         outlineStyles,
       )}
       `}
+      type={type}
+      aria-label={ariaLabel}
     >
       {(outline && !disabled) && (
         <span

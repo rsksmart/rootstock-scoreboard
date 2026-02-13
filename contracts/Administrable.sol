@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title Administrable Contract
@@ -48,19 +48,19 @@ contract Administrable is ReentrancyGuard {
     // ============ MODIFIERS ============
 
     modifier onlyAdmins() {
-        require(adminInfo[msg.sender].role != AdminRole.NONE && adminInfo[msg.sender].isActive, 
+        require(adminInfo[msg.sender].role != AdminRole.NONE && adminInfo[msg.sender].isActive,
                 "Not an active admin");
         _;
     }
 
     modifier onlyRole(AdminRole minRole) {
-        require(adminInfo[msg.sender].role >= minRole && adminInfo[msg.sender].isActive, 
+        require(adminInfo[msg.sender].role >= minRole && adminInfo[msg.sender].isActive,
                 "Insufficient admin privileges");
         _;
     }
 
     modifier onlySuperAdmin() {
-        require(adminInfo[msg.sender].role == AdminRole.SUPER_ADMIN && adminInfo[msg.sender].isActive, 
+        require(adminInfo[msg.sender].role == AdminRole.SUPER_ADMIN && adminInfo[msg.sender].isActive,
                 "Only super admin can perform this action");
         _;
     }

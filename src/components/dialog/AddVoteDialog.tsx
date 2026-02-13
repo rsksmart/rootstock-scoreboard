@@ -6,7 +6,6 @@ import ContentDialog from './ContentDialog'
 import { useAuth } from '@/context/AuthContext'
 import useManager from '@/hooks/useManager'
 import { FETCH_STATUS } from '@/constants'
-import { ITeam } from '@/interface/ITeam'
 import ConnectWalletButton from '../navigation/ConnectWalletButton'
 
 type props = {
@@ -14,30 +13,41 @@ type props = {
   closeDialog: Function
 }
 function AddVoteDialog({ open, closeDialog }: props) {
-  const { isLoading, setIsLoading, addVote, getTeams } = useManager();
+  const { isLoading, setIsLoading, addVote, getTeams, contractErrorText } = useManager();
   const [amount, setAmount] = useState<number | undefined>(0);
   const [error, setError] = useState<string>('');
   const { team, tokenBalance, address } = useAuth();
 
-  const handleVote = () => {
-    if (!amount) setError('Amount required');
-    if (!tokenBalance || amount! > tokenBalance) setError(`you don't have enough balance`);
-    if (amount && tokenBalance && amount! <= tokenBalance) addVote(team?.teamName!, amount!);
+  const handleVote = async() => {
+    setError('');
+    if (!amount || amount <= 0) {
+      setError('Amount required');
+      return;
+    }
+    if (!tokenBalance || amount > tokenBalance) {
+      setError(`you don't have enough balance`);
+      return;
+    };
+    if (!team?.teamName) {
+      setError('No team selected');
+      return;
+    }
+    await addVote(team.teamName, amount);
   }
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = async () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
-      getTeams();
+      await getTeams();
     }
     closeDialog();
     setIsLoading(FETCH_STATUS.INIT);
     setAmount(0);
     setError('');
   }
-  const handleReset = () => {
+  const handleReset = async () => {
     if (isLoading === FETCH_STATUS.COMPLETED) {
       closeDialog();
-      getTeams();
+      await getTeams();
     }
     setIsLoading(FETCH_STATUS.INIT);
     setAmount(0);
@@ -47,7 +57,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
     <BaseDialog open={open} closeDialog={handleCloseDialog} className='w-[490px] h-[420px]'>
       <div className='w-full h-full flex flex-col'>
       {
-          !address && 
+          !address &&
           <div className='absolute -left-0 w-full h-[90%] mt-1 flex justify-center items-center'>
             <div className='absolute w-full h-full bg-black opacity-80 z-10'></div>
             <div className='relative z-20'>
@@ -81,9 +91,9 @@ function AddVoteDialog({ open, closeDialog }: props) {
                     value={amount || ''}
                     onChange={(e) => setAmount(Number(e.target.value))}
                     id='amount'
-                    name="amoun"
-                    placeholder='Amoun to vote'
-                    height={35}  
+                    name="amount"
+                    placeholder='Amount to vote'
+                    height={35}
                   />
                   <div className='ml-3 text-red-600 p-1 text-sm'>{ error }</div>
                 </div>
@@ -92,6 +102,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
                 <Button
                   onClick={() => handleCloseDialog()}
                   width={80}
+                  ariaLabel='Cancel and close dialog'
                 >
                   Cancel
                 </Button>
@@ -111,6 +122,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
           createdTitle='Vote added'
           onClose={() => handleReset()}
           btnError='try again'
+          errorText={contractErrorText}
         />
       </div>
     </BaseDialog>
