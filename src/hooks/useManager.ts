@@ -2,8 +2,7 @@
 import { AdminRole, FETCH_STATUS, GOVERNANCE_TOKEN, TEAM_MANAGER_ADDRESS } from '@/constants'
 import { useAuth } from '@/context/AuthContext'
 import { ICreateTeam, ITeam } from '@/interface/ITeam'
-import { TeamsManagerCore, TeamsManagerCore__factory } from '@/typechain-types'
-import { ABI_ERC20 } from '@/utils/Abi'
+import { ABI_ERC20, ABI_TEAMS_MANAGER } from '@/utils/Abi'
 import { ethers } from 'ethers'
 import { DecodedError, ErrorDecoder } from 'ethers-decode-error'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -23,7 +22,8 @@ const useManager = () => {
 
   const [isLoading, setIsLoading] = useState(FETCH_STATUS.INIT);
   const [contractErrorText, setErrorText] = useState<string>("");
-  const [teamManager, setTeamManager] = useState<TeamsManagerCore>()
+  const [teamManager, setTeamManager] = useState<ethers.Contract>()
+  const initPromiseRef = useRef<Promise<ethers.Contract> | null>(null);
   const {
     provider,
     address,
@@ -36,24 +36,38 @@ const useManager = () => {
     setPermissions
   } = useAuth()
 
-  const initializeProvider = useCallback(async () => {
-    if (!provider) {
-       PROVIDER.current = RPC_PROVIDER;
-    }
-    if (provider) {
-      PROVIDER.current = await provider.getSigner()
-    }
-    const teamManager = TeamsManagerCore__factory.connect(
-      TEAM_MANAGER_ADDRESS!,
-      PROVIDER.current
-    )
+  const initializeProvider = useCallback(() => {
+    if (!initPromiseRef.current) {
+      const init = async () => {
+        if (!provider) {
+          PROVIDER.current = RPC_PROVIDER;
+        }
+        if (provider) {
+          PROVIDER.current = await provider.getSigner()
+        }
+        const manager = new ethers.Contract(
+          TEAM_MANAGER_ADDRESS!,
+          ABI_TEAMS_MANAGER,
+          PROVIDER.current
+        )
 
-    setTeamManager(teamManager)
-    return teamManager
+        setTeamManager(manager)
+        return manager;
+      };
+
+      const promise = init();
+      promise.catch(() => {
+        initPromiseRef.current = null;
+      });
+      initPromiseRef.current = promise;
+    }
+
+    return initPromiseRef.current;
   }, [provider]);
 
   useEffect(() => {
-    initializeProvider()
+    initPromiseRef.current = null;
+    initializeProvider();
   }, [provider, initializeProvider])
 
   const getTeams = useCallback(async () => {
@@ -62,8 +76,8 @@ const useManager = () => {
       const tokenContract = new ethers.Contract(GOVERNANCE_TOKEN!, ABI_ERC20, signer);
       setContract(tokenContract);
       const balance = await tokenContract.balanceOf(address);
-      const decimals = 18;
-      const formattedBalance = ethers.formatUnits(balance, decimals);
+      const decimals = await tokenContract.decimals();
+      const formattedBalance = ethers.formatUnits(balance, Number(decimals));
       setTokenBalance(Number(formattedBalance));
     }
 
@@ -71,7 +85,11 @@ const useManager = () => {
       setTeamLoading(true);
       const teamManager = await initializeProvider()
       const items = await teamManager?.getTeamNames();
-      const teamsDetail:ITeam[] = [];
+
+      const tokenContract = new ethers.Contract(GOVERNANCE_TOKEN!, ABI_ERC20, teamManager?.runner);
+      const decimals = await tokenContract.decimals();
+
+      const teamsDetail: ITeam[] = [];
       for (const team in items) {
         const detail = await teamManager?.getTeamInfo(items[team]);
         const score = await teamManager.getScore(items[team]);
@@ -82,7 +100,7 @@ const useManager = () => {
           memeTokenAddress: detail[3],
           leaderAddress: detail[4],
         }
-        newTeam.score = Number(ethers.formatEther(score));
+        newTeam.score = Number(ethers.formatUnits(score, Number(decimals)));
         if (newTeam.teamName) teamsDetail.push(newTeam);
       }
       setTeams(teamsDetail);
@@ -92,14 +110,15 @@ const useManager = () => {
       const decodedError: DecodedError = await errorDecoder.decode(error);
       toast.error(decodedError.reason);
     }
-  }, [initializeProvider, setTeams, setTeamLoading, address, provider, setContract, setTokenBalance]);
+  }, [initializeProvider, address, provider]);
 
-  const addVote = async (teamName: string, amount:number) => {
-    const value = ethers.parseEther(amount.toString());
+  const addVote = useCallback(async (teamName: string, amount: number) => {
     try {
+      const decimals = await contract!.decimals();
+      const value = ethers.parseUnits(amount.toString(), Number(decimals));
       setIsLoading(FETCH_STATUS.WAIT_WALLET)
       const allowance = await contract!.allowance(address, TEAM_MANAGER_ADDRESS);
-      if (Number(ethers.formatEther(allowance)) < 1) {
+      if (Number(ethers.formatUnits(allowance, Number(decimals))) < 1) {
         setPermissions(true);
         const approve = await contract!.approve(TEAM_MANAGER_ADDRESS, DEFAULT_ALLOWANCE);
         const receipt = await provider?.waitForTransaction(approve.hash);
@@ -119,9 +138,9 @@ const useManager = () => {
       setErrorText(decodedError.reason || "Failed to add vote!");
       setIsLoading(FETCH_STATUS.ERROR)
     }
-  }
+  }, [address, contract, provider, teamManager]);
 
-  const addTeam = async (team: ICreateTeam) => {
+  const addTeam = useCallback(async (team: ICreateTeam) => {
     const { teamLeaderAddress, teamName, memeTokenAddress } = team;
     try {
       setIsLoading(FETCH_STATUS.WAIT_WALLET)
@@ -137,9 +156,9 @@ const useManager = () => {
       setErrorText(decodedError.reason || "Failed to add team!");
       setIsLoading(FETCH_STATUS.ERROR)
     }
-  }
+  }, [teamManager]);
 
-  const kickStartVoting = async (durationInSeconds: string | number) => {
+  const kickStartVoting = useCallback(async (durationInSeconds: string | number) => {
     try {
       setIsLoading(FETCH_STATUS.WAIT_WALLET);
       const duration = BigInt(durationInSeconds);
@@ -157,7 +176,7 @@ const useManager = () => {
       setIsLoading(FETCH_STATUS.ERROR);
       return false;
     }
-  };
+  }, [teamManager]);
 
   const getVotingStatus = useCallback(async () => {
     try {
@@ -166,11 +185,14 @@ const useManager = () => {
 
       const status = await manager.getVotingStatus();
 
+      const votingTokenContract = new ethers.Contract(status[4], ABI_ERC20, manager.runner);
+      const decimals = await votingTokenContract.decimals();
+
       const formattedStatus = {
         isActive: status[0],
         startTime: Number(status[1]),
         endTime: Number(status[2]),
-        totalVotesCount: ethers.formatEther(status[3]),
+        totalVotesCount: ethers.formatUnits(status[3], Number(decimals)),
         votingToken: status[4],
       };
       return formattedStatus;
@@ -184,25 +206,28 @@ const useManager = () => {
   const checkAdminPermissions = useCallback(async () => {
     const manager = await initializeProvider();
     if (!address || !manager)
-      return { isAuthorized: false, role: AdminRole.NONE };
+      return { isAdminAuthorized: false, isVotingAuthorized: false, role: AdminRole.NONE };
 
     try {
       const roleValue = await manager.getAdminRole(address);
 
       const role = Number(roleValue) as AdminRole;
 
-      const isAuthorized =
-        role === AdminRole.VOTE_ADMIN || role === AdminRole.SUPER_ADMIN;
-      return { isAuthorized, role };
+      const isVotingAuthorized =
+        role >= AdminRole.VOTE_ADMIN;
+      const isAdminAuthorized =
+        role >= AdminRole.TEAM_MANAGER;
+
+      return { isAdminAuthorized, isVotingAuthorized, role };
     } catch (error) {
       console.error("Error checking permissions:", error);
       const decodedError: DecodedError = await errorDecoder.decode(error);
       toast.error(decodedError.reason || "Failed to fetch User permissions");
-      return { isAuthorized: false, role: AdminRole.NONE };
+      return { isAdminAuthorized: false, isVotingAuthorized: false, role: AdminRole.NONE };
     }
   }, [address, initializeProvider]);
 
-  const assignAdminRole = async (targetAddress: string, role: AdminRole) => {
+  const assignAdminRole = useCallback(async (targetAddress: string, role: AdminRole, isEmergencyMode: boolean) => {
     try {
       setIsLoading(FETCH_STATUS.WAIT_WALLET);
 
@@ -210,8 +235,12 @@ const useManager = () => {
         toast.error("Invalid wallet address!");
         return false;
       }
-
-      const response = await teamManager?.addAdmin(targetAddress, role);
+      let response;
+      if (isEmergencyMode) {
+        response = await teamManager?.emergencyAddAdmin(targetAddress, role);
+      } else {
+        response = await teamManager?.addAdmin(targetAddress, role);
+      }
 
       setIsLoading(FETCH_STATUS.WAIT_TX);
       setTx(response);
@@ -227,7 +256,93 @@ const useManager = () => {
       setIsLoading(FETCH_STATUS.ERROR);
       return false;
     }
-  };
+  }, [teamManager]);
+
+  const getIsEmergencyMode = useCallback(async () => {
+    try {
+      const manager = await initializeProvider();
+      if (!manager) return false;
+      const status: boolean = await manager.emergencyMode();
+      return status;
+    } catch (error) {
+      console.error("Error fetching emergency mode:", error);
+      const decodedError: DecodedError = await errorDecoder.decode(error);
+      toast.error(decodedError.reason || "Failed to fetch emergency mode");
+      return false;
+    }
+  }, [initializeProvider]);
+
+  const triggerEmergencyMode = useCallback(async () => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.triggerEmergency();
+
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+      return true;
+    } catch (error) {
+      console.error("Error triggering emergency mode:", error);
+      const decodedError = await errorDecoder.decode(error);
+      setErrorText(decodedError.reason || "Failed to trigger emergency mode");
+      setIsLoading(FETCH_STATUS.ERROR);
+      return false;
+    }
+  }, [teamManager]);
+
+  const resolveEmergency = useCallback(async () => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.resolveEmergency();
+
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+      return true;
+    } catch (error) {
+      console.error("Error resolving emergency mode:", error);
+      const decodedError = await errorDecoder.decode(error);
+      setErrorText(decodedError.reason || "Failed to resolve emergency mode");
+      setIsLoading(FETCH_STATUS.ERROR);
+      return false;
+    }
+  }, [teamManager]);
+
+  const getTokenDecimals = useCallback(async (tokenAddress: string) => {
+    try {
+      if (!provider) throw new Error("Provider not found");
+      const tokenContract = new ethers.Contract(tokenAddress, ABI_ERC20, provider);
+      const decimals = await tokenContract.decimals();
+      return Number(decimals);
+    } catch (error) {
+      console.error("Error fetching token decimals:", error);
+      throw new Error("Unable to fetch token decimals. Ensure the contract is a valid ERC20.");
+    }
+  }, [provider]);
+
+  const emergencyWithdraw = useCallback(async (tokenAddress: string, receiver: string, amount: string) => {
+    try {
+      setIsLoading(FETCH_STATUS.WAIT_WALLET);
+      const response = await teamManager?.emergencyWithdraw(tokenAddress, receiver, amount);
+
+      setIsLoading(FETCH_STATUS.WAIT_TX);
+      setTx(response);
+
+      await response?.wait();
+      setIsLoading(FETCH_STATUS.COMPLETED);
+      return true;
+    } catch (error) {
+      console.error("Error processing emergency withdrawal:", error);
+      const decodedError = await errorDecoder.decode(error);
+      setErrorText(decodedError.reason || "Failed to process emergency withdrawal");
+      setIsLoading(FETCH_STATUS.ERROR);
+      return false;
+    }
+  }, [teamManager]);
 
   return {
     addVote,
@@ -239,7 +354,12 @@ const useManager = () => {
     kickStartVoting,
     getVotingStatus,
     checkAdminPermissions,
-    assignAdminRole
+    assignAdminRole,
+    triggerEmergencyMode,
+    emergencyWithdraw,
+    resolveEmergency,
+    getIsEmergencyMode,
+    getTokenDecimals
   }
 }
 

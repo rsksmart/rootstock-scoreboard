@@ -7,7 +7,7 @@ import { TeamRowComp } from './Team';
 
 function TableTokens() {
   const [dialog, setDialog] = useState<boolean>(false);
-  const { teams, setTeam } = useAuth();
+  const { teams, setTeam, isEmergencyMode } = useAuth();
   const { getVotingStatus } = useManager();
   const [isVotingActive, setIsVotingActive] = useState(false);
 

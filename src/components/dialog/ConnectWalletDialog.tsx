@@ -41,7 +41,7 @@ function ConnectWalletDialog({ closeDialog, open }: props) {
     >
       {!isError ? (
         <div>
-          <h2 className="text-2xl text-slate-100 text-center font-semibold mb-10 mt-6">
+          <h2 id="dialog-title" className="text-2xl text-slate-100 text-center font-semibold mb-10 mt-6">
             Connecting wallet
           </h2>
           <div className="relative flex justify-center items-center">
@@ -51,7 +51,7 @@ function ConnectWalletDialog({ closeDialog, open }: props) {
         </div>
       ) : (
         <div className="flex flex-col items-center">
-          <h2 className="text-xl text-slate-100 text-center font-semibold mb-10 mt-6">
+          <h2 id="dialog-title" className="text-xl text-slate-100 text-center font-semibold mb-10 mt-6">
             Make sure you have metamask in your browser
           </h2>
           <MetamaskIcon className="w-[100px] h-[100px]" />

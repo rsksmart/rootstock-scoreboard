@@ -69,7 +69,7 @@ function AddVoteDialog({ open, closeDialog }: props) {
           initialContent={
             <div className='flex flex-col justify-between w-full h-full mt-2'>
               <div className='w-full items-center'>
-                <h2 className='bg-custom-green font-bold text-xl text-black w-max px-1 m-auto'>ADD YOUR VOTE</h2>
+                <h2 id="dialog-title" className='bg-custom-green font-bold text-xl text-black w-max px-1 m-auto'>ADD YOUR VOTE</h2>
               </div>
               <div className='w-full'>
                 <div className='w-full p-1'>

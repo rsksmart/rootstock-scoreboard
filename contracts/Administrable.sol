@@ -11,6 +11,12 @@ contract Administrable is ReentrancyGuard {
 
     // ============ ENUMS ============
 
+    /**
+     * @dev WARNING: The ordering of this enum is critical for Role-Based Access Control (RBAC).
+     * Access modifiers such as `onlyRole` use `>=` comparisons against the underlying integer
+     * values. Changing the order or inserting new roles between existing ones will silently break
+     * the access control hierarchy. Strict hierarchy is maintained in ascending power.
+     */
     enum AdminRole {
         NONE,           // 0 - Not an admin
         TEAM_MANAGER,   // 1 - Can only manage teams
@@ -34,7 +40,8 @@ contract Administrable is ReentrancyGuard {
     uint256 public totalAdmins;
 
     // Emergency system
-    bool public emergencyMode = false;
+    bool private _emergencyMode = false;
+    uint256 public constant EMERGENCY_TIMEOUT = 7 days;
     address public emergencyTriggeredBy;
     uint256 public emergencyStartTime;
 
@@ -53,6 +60,9 @@ contract Administrable is ReentrancyGuard {
         _;
     }
 
+    /**
+     * @dev Asserts a minimum role hierarchy required. Inherits privilege based on the integer order defined in `AdminRole`.
+     */
     modifier onlyRole(AdminRole minRole) {
         require(adminInfo[msg.sender].role >= minRole && adminInfo[msg.sender].isActive,
                 "Insufficient admin privileges");
@@ -66,12 +76,12 @@ contract Administrable is ReentrancyGuard {
     }
 
     modifier notInEmergency() {
-        require(!emergencyMode, "Contract is in emergency mode");
+        require(!emergencyMode(), "Contract is in emergency mode");
         _;
     }
 
     modifier onlyInEmergency() {
-        require(emergencyMode, "Emergency mode required");
+        require(emergencyMode(), "Emergency mode required");
         _;
     }
 
@@ -160,12 +170,8 @@ contract Administrable is ReentrancyGuard {
     /**
      * @dev Trigger emergency mode
      */
-    function triggerEmergency() external {
-        require(
-            adminInfo[msg.sender].role == AdminRole.RECOVERY_ADMIN && adminInfo[msg.sender].isActive,
-            "Only recovery admin can trigger emergency"
-        );
-        emergencyMode = true;
+    function triggerEmergency() external onlyRole(AdminRole.RECOVERY_ADMIN) {
+        _emergencyMode = true;
         emergencyTriggeredBy = msg.sender;
         emergencyStartTime = block.timestamp;
 
@@ -176,7 +182,7 @@ contract Administrable is ReentrancyGuard {
      * @dev Resolve emergency mode
      */
     function resolveEmergency() external onlySuperAdmin onlyInEmergency {
-        emergencyMode = false;
+        _emergencyMode = false;
         emergencyTriggeredBy = address(0);
         emergencyStartTime = 0;
 
@@ -190,6 +196,7 @@ contract Administrable is ReentrancyGuard {
         require(admin != address(0), "Invalid admin address");
         require(adminInfo[admin].role == AdminRole.NONE, "Already an admin");
         require(role != AdminRole.NONE, "Invalid role");
+        require(role <= adminInfo[msg.sender].role, "Cannot grant role higher than own");
 
         adminInfo[admin] = AdminInfo({
             role: role,
@@ -204,6 +211,11 @@ contract Administrable is ReentrancyGuard {
     }
 
     // ============ VIEW FUNCTIONS ============
+
+    function emergencyMode() public view returns (bool) {
+        if (!_emergencyMode) return false;
+        return block.timestamp <= emergencyStartTime + EMERGENCY_TIMEOUT;
+    }
 
     function isAdmin(address _address) public view returns (bool) {
         return adminInfo[_address].role != AdminRole.NONE && adminInfo[_address].isActive;

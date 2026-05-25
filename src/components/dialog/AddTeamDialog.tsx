@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext'
 import useManager from '@/hooks/useManager'
 import ConnectWalletButton from '../navigation/ConnectWalletButton'
 import { ethers } from 'ethers'
+import { toast } from 'react-toastify'
 
 type props = {
   open: boolean
@@ -26,7 +27,7 @@ const CREATE_TEAM_STATE: ICreateTeam = {
 
 function AddTeamDialog({ open, closeDialog }: props) {
   const { isLoading, setIsLoading, addTeam, getTeams, contractErrorText } = useManager();
-  const { address, teams } = useAuth();
+  const { address, teams, isEmergencyMode } = useAuth();
   const [formCompleted, setFormCompleted] = useState<boolean>(true);
   const [validAddress, setValidAddress] = useState<boolean>(true);
   const [createTeam, setCreateTeam] = useState<ICreateTeam>(CREATE_TEAM_STATE);
@@ -72,6 +73,10 @@ function AddTeamDialog({ open, closeDialog }: props) {
   }
 
   const createNewTeam = async () => {
+    if (isEmergencyMode) {
+      toast.warning("Cannot add teams during emergency mode.");
+      return;
+    }
     const validAddress = ethers.isAddress(createTeam.memeTokenAddress.toLowerCase());
     setValidAddress(validAddress);
     setFormCompleted(areAllFieldsFilled());
@@ -86,7 +91,11 @@ function AddTeamDialog({ open, closeDialog }: props) {
     }
   }
   return (
-    <BaseDialog open={open} closeDialog={handleCloseDialog} className={`w-[490px] h-[440px] bg-black border border-zinc-700 transition-all duration-200`}>
+    <BaseDialog
+      open={open}
+      closeDialog={handleCloseDialog}
+      className="w-[500px] h-fit min-h-[440px] pb-6 bg-black border border-zinc-700 transition-all duration-200"
+    >
       <div className='w-full h-full flex flex-col'>
         {
           !address &&
@@ -100,12 +109,22 @@ function AddTeamDialog({ open, closeDialog }: props) {
         <ContentDialog
           initialContent={
             <>
-              <h2 className={`${step === STEP_STATUS.INIT ? 'bg-custom-green' : 'bg-custom-pink'} mt-1 font-bold text-xl text-black w-max px-1 items-start`}>
+              <h2 id="dialog-title" className={`${step === STEP_STATUS.INIT ? 'bg-custom-green' : 'bg-custom-pink'} mt-1 font-bold text-xl text-black w-max px-1 items-start`}>
                 {
                   step === STEP_STATUS.INIT ? 'CREATE TEAM' : 'CONFIRM TEAM DATA'
                 }
               </h2>
-              <form className={`w-full mt-7 items-center flex flex-wrap form-team ${step === STEP_STATUS.CONFIRM ? 'confirm' : ''}`}>
+
+              {isEmergencyMode && (
+                <div className="mt-6 mx-3 p-3 bg-red-950/40 border border-red-500/50 rounded-lg flex items-start gap-2 text-sm text-red-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span><strong>Action disabled:</strong> Teams cannot be created while the system is in Emergency Mode.</span>
+                </div>
+              )}
+
+              <form className={`w-full ${isEmergencyMode ? 'mt-4' : 'mt-7'} items-center flex flex-wrap form-team ${step === STEP_STATUS.CONFIRM ? 'confirm' : ''}`}>
                 <div className='w-full p-2'>
                   <label htmlFor="name" className='font-bold text-base ml-3 mb-1 block'>Team Name</label>
                   <Input

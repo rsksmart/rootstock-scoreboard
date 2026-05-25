@@ -37,7 +37,7 @@ const Button: React.FC<ButtonProps> = ({
   ariaLabel
 }) => {
   if (!show) return;
-  const baseStyles = 'px-4 font-semibold focus:outline-none transition-colors flex justify-center items-center';
+  const baseStyles = 'px-4 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-custom-orange focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors flex justify-center items-center';
 
   const sizeStyles = size === 'large' ? 'text-lg' : 'text-sm';
 

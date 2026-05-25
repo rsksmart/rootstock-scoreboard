@@ -85,7 +85,7 @@ contract TeamsManagerCore is Administrable {
     function vote(
         string memory teamName,
         uint256 transferAmount
-    ) external nonReentrant votingActive validTeam(teamName) {
+    ) external nonReentrant votingActive validTeam(teamName) notInEmergency {
         require(transferAmount >= minimumVoteAmount, "Vote amount too small");
         require(transferAmount <= maxVotePerUser, "Vote amount exceeds maximum");
         require(

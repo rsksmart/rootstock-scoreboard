@@ -30,6 +30,8 @@ interface AuthContextType {
   setContract: React.Dispatch<React.SetStateAction<ethers.Contract| undefined>>
   permissions: boolean
   setPermissions: React.Dispatch<React.SetStateAction<boolean>>
+  isEmergencyMode: boolean
+  setIsEmergencyMode: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -45,6 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [permissions, setPermissions] = useState<boolean>(false);
   const [tokenBalance, setTokenBalance] = useState<number>(0);
   const [contract, setContract] = useState<ethers.Contract | undefined>();
+  const [isEmergencyMode, setIsEmergencyMode] = useState<boolean>(false);
 
   const [provider, setProvider] = useState<ethers.BrowserProvider | undefined>(
     undefined
@@ -77,7 +80,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         contract,
         setContract,
         permissions,
-        setPermissions
+        setPermissions,
+        isEmergencyMode,
+        setIsEmergencyMode
       }}
     >
       {children}

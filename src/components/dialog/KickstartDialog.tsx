@@ -30,7 +30,7 @@ function KickstartVotingDialog({
     contractErrorText,
     kickStartVoting,
   } = useManager();
-  const { address } = useAuth();
+  const { address, isEmergencyMode } = useAuth();
 
   // Local state for the form
   const [value, setValue] = useState<number>(1);
@@ -47,6 +47,11 @@ function KickstartVotingDialog({
   };
 
   const onKickstart = async () => {
+    if (isEmergencyMode) {
+      toast.warning("Cannot start or update voting sessions during emergency mode.");
+      return;
+    }
+
     if (!value || isNaN(value) || value <= 0) {
       toast.error("Please enter a valid duration.");
       return;
@@ -69,7 +74,7 @@ function KickstartVotingDialog({
     <BaseDialog
       open={open}
       closeDialog={handleCloseDialog}
-      className="w-[490px] h-[380px] bg-black border border-zinc-700 transition-all duration-200"
+      className="w-[490px] h-fit min-h-[380px] pb-6 bg-black border border-zinc-700 transition-all duration-200"
     >
       <div className="w-full h-full flex flex-col">
         {!address && (
@@ -90,13 +95,22 @@ function KickstartVotingDialog({
           errorText={contractErrorText}
           initialContent={
             <>
-              <h2 className="bg-custom-orange mt-1 font-bold text-xl text-black w-max px-1">
+              <h2 id="dialog-title" className="bg-custom-orange mt-1 font-bold text-xl text-black w-max px-1">
                 {votingStatus?.isActive
                   ? "UPDATE SESSION TIMER"
                   : "START VOTING SESSION"}
               </h2>
 
-              <div className="w-full mt-10 flex flex-col gap-2">
+              {isEmergencyMode && (
+                <div className="mt-6 mx-3 p-3 bg-red-950/40 border border-red-500/50 rounded-lg flex items-start gap-2 text-sm text-red-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span><strong>Action disabled:</strong> Voting sessions cannot be updated while the system is in Emergency Mode.</span>
+                </div>
+              )}
+
+              <div className={`w-full ${isEmergencyMode ? 'mt-6' : 'mt-10'} flex flex-col gap-2`}>
                 <label className="font-bold text-base ml-3 block">
                   {" "}
                   {votingStatus?.isActive

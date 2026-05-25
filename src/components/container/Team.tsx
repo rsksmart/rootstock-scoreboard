@@ -1,6 +1,7 @@
 import { ITeam } from "@/interface/ITeam";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Button from "../common/Button";
+import { useAuth } from "@/context/AuthContext";
 import CopyContent from "./CopyContent";
 import { getImageFromURI } from "@/utils/getImageFromUri";
 import { DUMMY_TOKEN_IMAGE } from "@/constants";
@@ -24,8 +25,9 @@ export const TeamRowComp: React.FC<ITeamComp> = ({
   team,
   setDialog,
   setTeam,
-  isVotingActive
+  isVotingActive,
 }) => {
+  const { isEmergencyMode } = useAuth();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,11 +88,11 @@ export const TeamRowComp: React.FC<ITeamComp> = ({
                 setDialog(true);
                 setTeam(team);
               }}
-              disabled={!isVotingActive}
-              className={!isVotingActive ? "opacity-50 cursor-not-allowed grayscale" : ""}
+              disabled={!isVotingActive || isEmergencyMode}
+              className={(!isVotingActive || isEmergencyMode) ? "opacity-50 cursor-not-allowed grayscale" : ""}
               width={80}
             >
-              {isVotingActive ? "Vote" : "Closed"}
+              {isEmergencyMode ? "Paused" : (isVotingActive ? "Vote" : "Closed")}
             </Button>
           </div>
         </td>
